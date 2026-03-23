@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 
 const userRoutes = require('./routes/user.route')
+const doctorRoutes = require('./routes/doctor.route')
 
 env.config()
 const app = express()
@@ -12,6 +13,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 userRoutes(app);
+doctorRoutes(app);
+
+
 
 // app.get('/', (req, res) => {
 //   res.send('Hello World!')
