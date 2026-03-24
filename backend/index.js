@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 
 const userRoutes = require('./routes/user.route')
 const doctorRoutes = require('./routes/doctor.route')
+const appointmentRoutes = require('./routes/appointment.route')
 
 env.config()
 const app = express()
@@ -14,7 +15,7 @@ app.use(bodyParser.json());
 
 userRoutes(app);
 doctorRoutes(app);
-
+appointmentRoutes(app);
 
 
 // app.get('/', (req, res) => {
