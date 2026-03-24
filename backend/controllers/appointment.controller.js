@@ -3,7 +3,12 @@ const { successResponseBody, errorResponseBody } = require('../utils/responseBod
 
 const createAppointments = async(req,res) => {
     try {
-        const response = await appointmentService.createAppointment(req.body);
+        // console.log(req.params,req.params.doctorId,req.body);
+        const response = await appointmentService.createAppointment({
+            doctor: req.params.doctorId,     
+            user: req.body.user,              
+            ...req.body            
+        });
         successResponseBody.data = response;
         successResponseBody.message = "Successfully created the Appointment";
         return res.status(201).json(successResponseBody);
