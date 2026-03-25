@@ -16,6 +16,37 @@ const createUser = async (data) => {
   }
 };
 
+const getUserByEmail = async (email) => {
+    try{
+        const response = await User.findOne({
+            email: email
+        })
+        if(!response){
+            throw {err: "No user found for the given email", code: 404}
+        }
+        return response;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+
+const getUserById = async(id) => {
+    try {
+        const user = await User.findById(id);
+        if(!user){
+            console.log(id);
+            throw {err: "No user found for the given id"}
+        }
+        return user;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
 module.exports = {
-    createUser
+    createUser,
+    getUserByEmail,
+    getUserById
 }

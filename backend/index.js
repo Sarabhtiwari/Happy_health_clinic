@@ -3,7 +3,7 @@ const env = require('dotenv')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 
-const userRoutes = require('./routes/user.route')
+const authRoutes = require('./routes/auth.route')
 const doctorRoutes = require('./routes/doctor.route')
 const appointmentRoutes = require('./routes/appointment.route')
 
@@ -13,7 +13,7 @@ const app = express()
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-userRoutes(app);
+authRoutes(app);
 doctorRoutes(app);
 appointmentRoutes(app);
 
