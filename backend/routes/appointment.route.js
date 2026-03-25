@@ -6,6 +6,8 @@ const route = (app) => {
     appointmentMiddleware.validateAppointmentRequest,
     appointmentController.createAppointments,
   );
+
+  app.get("/hhc/api/v1/appointments", appointmentController.getAllAppointments);
 };
 
 module.exports = route;
