@@ -1,9 +1,11 @@
 const Appointment = require("../models/appointment.model");
-const User = require('../models/user.model')
-const Doctor = require('../models/doctor.model')
+const User = require("../models/user.model");
+const Doctor = require("../models/doctor.model");
 
 const createAppointment = async (data) => {
   try {
+    //logic for if booking with penxding status already exists
+    // for the same doctor and date, then throw error
     //appointment number generation
     const startOfDay = new Date(data.dateOfAppointment);
     startOfDay.setHours(0, 0, 0, 0);

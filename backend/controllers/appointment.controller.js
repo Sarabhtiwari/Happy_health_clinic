@@ -6,7 +6,6 @@ const {
 
 const createAppointments = async (req, res) => {
   try {
-    // console.log(req.params,req.params.doctorId,req.body);
     const response = await appointmentService.createAppointment({
       doctor: req.params.doctorId,
       user: req.body.user,

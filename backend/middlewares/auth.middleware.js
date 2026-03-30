@@ -36,19 +36,21 @@ const validateSignInRequest = async (req,res,next) => {
 const isAuthenticated = async(req,res,next) => {
     try {
         const token = req.headers["x-access-token"];
+       
         if(!token) {
             errorResponseBody.err = "No token provided"
             return res.status(403).json(errorResponseBody)
         }
-    
+        
         const response = jwt.verify(token,process.env.AUTH_KEY);
         //repsonse will have id of user
         if(!response){
             errorResponseBody.err = "Token not verified"
             return res.status(401).json(errorResponseBody)
         }
+        
         const user = await userService.getUserById(response.id);
-
+       
         req.user = user.id;
         next();
     } catch (error) {
