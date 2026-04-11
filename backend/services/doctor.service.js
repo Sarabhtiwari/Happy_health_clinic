@@ -16,6 +16,30 @@ const createDoctor = async (data) => {
   }
 };
 
+const getDoctors = async() => {
+  try {
+    const response = await Doctor.find().populate("user", "name email");  
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+const fetchDoctorById = async (doctorId) => {
+  try {
+    const response = await Doctor.findById(doctorId).populate("user", "name email");  
+    if (!response) {
+      throw { err: "Doctor not found", code: 404 };
+    }
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
 module.exports = {
-    createDoctor
+    createDoctor,
+    getDoctors,
+    fetchDoctorById,
 }

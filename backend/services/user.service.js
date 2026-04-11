@@ -41,7 +41,7 @@ const getUserById = async (id) => {
     const user = await User.findById(id);
     if (!user) {
       console.log(id);
-      throw { err: "No user found for the given id" };
+      throw { err: "No user found for the given id", code: 404 };
     }
     return user;
   } catch (error) {

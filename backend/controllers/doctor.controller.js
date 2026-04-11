@@ -51,6 +51,34 @@ const createDocs = async (req, res) => {
   }
 };
 
+const getDocs = async(req,res) => {
+  try {
+    const response  = await doctorService.getDoctors();
+    successResponseBody.data = response;
+    successResponseBody.message = "Successfully fetched the doctors";
+    return res.status(200).json(successResponseBody);
+  } catch (error) {
+    console.log(error);
+    errorResponseBody.err = error;
+    return res.status(500).json(errorResponseBody);
+  }
+}
+
+const getDocById = async(req,res) => {
+  try {
+    const response  = await doctorService.fetchDoctorById(req.params.doctorId);
+    successResponseBody.data = response;
+    successResponseBody.message = "Successfully fetched the doctor";
+    return res.status(200).json(successResponseBody);
+  } catch (error) {
+    console.log(error);
+    errorResponseBody.err = error;
+    return res.status(500).json(errorResponseBody);
+  }
+};
+
 module.exports = {
   createDocs,
+  getDocs,
+  getDocById,
 };

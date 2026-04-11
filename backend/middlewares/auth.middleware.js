@@ -35,7 +35,14 @@ const validateSignInRequest = async (req,res,next) => {
 
 const isAuthenticated = async(req,res,next) => {
     try {
-        const token = req.headers["x-access-token"];
+        const authHeader = req.headers["authorization"];
+
+        if (!authHeader) {
+            errorResponseBody.err = "No token provided";
+            return res.status(403).json(errorResponseBody);
+        }
+
+        const token = authHeader.split(" ")[1];
        
         if(!token) {
             errorResponseBody.err = "No token provided"
@@ -54,6 +61,7 @@ const isAuthenticated = async(req,res,next) => {
         req.user = user.id;
         next();
     } catch (error) {
+        console.log(error);
         if(error.name == "JsonWebTokenError"){
             errorResponseBody.err = error.message;
             return res.status(401).json(errorResponseBody)

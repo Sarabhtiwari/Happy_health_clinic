@@ -7,6 +7,7 @@ const createAppointment = async (data) => {
     //logic for if booking with penxding status already exists
     // for the same doctor and date, then throw error
     //appointment number generation
+    console.log(data);
     const startOfDay = new Date(data.dateOfAppointment);
     startOfDay.setHours(0, 0, 0, 0);
 
@@ -88,6 +89,7 @@ const getAppointments = async (data) => {
     const response = await Appointment.find(query)
       .populate("user", "name email userRole") // Brings in Patient details
       .populate("doctor") // Brings in Doctor details
+      .populate("payment")
       .limit(limit)
       .skip(skipValue)
       .sort({ dateOfAppointment: -1 });
@@ -106,7 +108,25 @@ const getAppointments = async (data) => {
     throw error;
   }
 };
+
+const getAppointmentById = async (id) => {
+  try {
+    const response = await Appointment.findById(id)
+      .populate({
+        path: 'doctor',
+        populate: { path: 'user', select: 'name' } 
+      })
+      .populate('user', 'name email'); 
+      
+    return response;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  } 
+};
+
 module.exports = {
   createAppointment,
   getAppointments,
+  getAppointmentById,
 };

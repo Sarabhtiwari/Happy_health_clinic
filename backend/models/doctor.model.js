@@ -7,6 +7,11 @@ const DoctorSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    // NOTE FOR PAYMENT INTEGRATION:
+    // This `fees` field is in RUPEES (e.g., 500 means ₹500).
+    // When creating a Razorpay order, multiply by 100 to convert to paise.
+    // Razorpay always works in the smallest currency unit (paise for INR).
+    // See payment.service.js -> createOrder() for this conversion.
     fees: {
       type: Number,
       required: true,

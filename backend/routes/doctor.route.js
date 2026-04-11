@@ -10,6 +10,9 @@ const route = (app) => {
     doctorMiddleware.validateCreateDoctorRequest,
     doctorController.createDocs
   );
+
+  app.get("/hhc/api/v1/doctors", doctorController.getDocs);
+  app.get("/hhc/api/v1/doctors/:doctorId", doctorController.getDocById);
 };
 
 module.exports = route;
