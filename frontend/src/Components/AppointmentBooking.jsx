@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "./NavBar";
@@ -11,7 +11,6 @@ const AppointmentBooking = () => {
   const [doctor, setDoctor] = useState(null);
   const [formData, setFormData] = useState({
     appointmentDate: "",
-    appointmentTime: "",
     description: "",
   });
 
@@ -19,8 +18,8 @@ const AppointmentBooking = () => {
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [validationError, setValidationError] = useState(null);
+  const bookingDoneRef = useRef(false);
 
-  // Fetch doctor details
   useEffect(() => {
     const fetchDoctor = async () => {
       try {
@@ -30,26 +29,28 @@ const AppointmentBooking = () => {
         setDoctor(response.data.data);
         setLoading(false);
       } catch (err) {
-        const errorMessage =
-          err.response?.data?.err ||
-          err.message ||
-          "Failed to fetch doctor details";
-        setError(errorMessage);
+        setError(err.response?.data?.err || err.message || "Failed to fetch doctor details");
         setLoading(false);
       }
     };
-
-    if (doctorId) {
-      fetchDoctor();
-    }
+    if (doctorId) fetchDoctor();
   }, [doctorId]);
+
+  // Block refresh after booking is created but before redirect
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (bookingDoneRef.current) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setValidationError(null);
   };
 
@@ -58,65 +59,43 @@ const AppointmentBooking = () => {
       setValidationError("Please select an appointment date");
       return false;
     }
-
-    if (!formData.appointmentTime) {
-      setValidationError("Please select an appointment time");
-      return false;
-    }
-
     const selectedDate = new Date(formData.appointmentDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     if (selectedDate < today) {
       setValidationError("Appointment date cannot be in the past");
       return false;
     }
-
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setSubmitting(true);
     try {
       const token = localStorage.getItem("authToken");
-
       if (!token) {
         setError("You must be logged in to book an appointment");
         setSubmitting(false);
         return;
       }
 
-      const appointmentPayload = {
-        appointmentDate: formData.appointmentDate,
-        appointmentTime: formData.appointmentTime,
-        description: formData.description,
-      };
-
       const response = await axios.post(
         `http://localhost:5000/hhc/api/v1/doctors/${doctorId}/appointments`,
-        appointmentPayload,
         {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+          appointmentDate: formData.appointmentDate,
+          description: formData.description,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const appointmentId = response.data.data._id;
-
-      // On successful booking, redirect to payment page
+      bookingDoneRef.current = true;
       navigate(`/payment/${appointmentId}`);
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.err ||
-        err.message ||
-        "Failed to create appointment";
-      setError(errorMessage);
+      setError(err.response?.data?.err || err.message || "Failed to create appointment");
       setSubmitting(false);
     }
   };
@@ -131,16 +110,14 @@ const AppointmentBooking = () => {
     );
   }
 
-  if (error && loading === false && !doctor) {
+  if (error && !doctor) {
     return (
       <div className="py-24 bg-gray-50 min-h-screen">
         <Navbar />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto">
             <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
-              <h2 className="text-2xl font-serif font-bold text-red-600 mb-2">
-                Error
-              </h2>
+              <h2 className="text-2xl font-serif font-bold text-red-600 mb-2">Error</h2>
               <p className="text-red-700 mb-6">{formatError(error)}</p>
               <button
                 onClick={() => navigate("/doctors")}
@@ -155,24 +132,13 @@ const AppointmentBooking = () => {
     );
   }
 
-  const getTodayDate = () => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  };
-
-  const getMinTime = () => {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    return `${hours}:${minutes}`;
-  };
+  const getTodayDate = () => new Date().toISOString().split("T")[0];
 
   return (
     <div className="py-24 bg-gray-50 min-h-screen">
       <Navbar />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-4">
               Book an Appointment
@@ -188,7 +154,6 @@ const AppointmentBooking = () => {
               <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">
                 Doctor Profile
               </h2>
-
               <div className="text-center mb-6">
                 <div className="w-32 h-32 rounded-full overflow-hidden mx-auto mb-4 border-4 border-blue-100 shadow-lg">
                   <img
@@ -200,7 +165,6 @@ const AppointmentBooking = () => {
                   />
                 </div>
               </div>
-
               <div className="space-y-4">
                 <div className="py-3 border-b border-gray-200">
                   <p className="text-gray-600 font-medium mb-1">Name</p>
@@ -208,32 +172,36 @@ const AppointmentBooking = () => {
                     Dr. {doctor?.user?.name}
                   </p>
                 </div>
-
                 <div className="py-3 border-b border-gray-200">
                   <p className="text-gray-600 font-medium mb-1">Specialization</p>
                   <p className="text-gray-900 font-semibold">
-                    {doctor?.specialization || "Dermatologist"}
+                    {doctor?.specialization || "N/A"}
                   </p>
                 </div>
-
                 <div className="py-3 border-b border-gray-200">
                   <p className="text-gray-600 font-medium mb-1">Qualification</p>
                   <p className="text-gray-900 font-semibold">
                     {doctor?.qualification || "N/A"}
                   </p>
                 </div>
-
+                <div className="py-3 border-b border-gray-200">
+                  <p className="text-gray-600 font-medium mb-1">Available Days</p>
+                  <p className="text-gray-900 font-semibold">
+                    {doctor?.availableDays?.join(", ") || "MON–FRI"}
+                  </p>
+                </div>
+                {/* Working hours shown as info only — user doesn't pick time */}
+                <div className="py-3 border-b border-gray-200">
+                  <p className="text-gray-600 font-medium mb-1">Working Hours</p>
+                  <p className="text-gray-900 font-semibold">
+                    {doctor?.workingHours?.start || "09:00"} –{" "}
+                    {doctor?.workingHours?.end || "18:00"}
+                  </p>
+                </div>
                 <div className="py-3 bg-blue-50 px-4 rounded-lg">
                   <p className="text-gray-600 font-medium mb-1">Consultation Fee</p>
                   <p className="text-2xl font-serif font-bold text-blue-600">
-                    ₹{doctor?.fees}
-                  </p>
-                </div>
-
-                <div className="py-3">
-                  <p className="text-gray-600 font-medium mb-1">Experience</p>
-                  <p className="text-gray-900 font-semibold">
-                    {doctor?.experience || "N/A"}
+                    NPR {doctor?.fees}
                   </p>
                 </div>
               </div>
@@ -244,22 +212,19 @@ const AppointmentBooking = () => {
               <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">
                 Appointment Details
               </h2>
-
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Validation Errors */}
                 {validationError && (
                   <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
                     <p className="text-red-700 font-medium">{validationError}</p>
                   </div>
                 )}
-
                 {error && !validationError && (
                   <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
                     <p className="text-red-700 font-medium">{formatError(error)}</p>
                   </div>
                 )}
 
-                {/* Date Input */}
+                {/* Date only — no time picker */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
                     Appointment Date *
@@ -274,29 +239,10 @@ const AppointmentBooking = () => {
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Select a date from today onwards
+                    Doctor is available: {doctor?.availableDays?.join(", ")}
                   </p>
                 </div>
 
-                {/* Time Input */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Appointment Time *
-                  </label>
-                  <input
-                    type="time"
-                    name="appointmentTime"
-                    value={formData.appointmentTime}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
-                    required
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Select preferred time (9:00 AM - 6:00 PM)
-                  </p>
-                </div>
-
-                {/* Description */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
                     Reason for Appointment
@@ -314,14 +260,15 @@ const AppointmentBooking = () => {
                   </p>
                 </div>
 
-                {/* Summary */}
                 <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-900 mb-3">Booking Summary</h3>
+                  <h3 className="font-semibold text-gray-900 mb-3">
+                    Booking Summary
+                  </h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Consultation Fee:</span>
                       <span className="font-semibold text-gray-900">
-                        ₹{doctor?.fees}
+                        NPR {doctor?.fees}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -331,22 +278,20 @@ const AppointmentBooking = () => {
                     <div className="border-t border-blue-200 pt-2 mt-2 flex justify-between">
                       <span className="font-semibold text-gray-900">Total:</span>
                       <span className="font-bold text-blue-600 text-lg">
-                        ₹{doctor?.fees}
+                        NPR {doctor?.fees}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Info Notice */}
                 <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-md">
                   <p className="text-sm text-yellow-800">
-                    <span className="font-semibold"> Note:</span> After booking,
-                    you'll be redirected to payment. Your appointment will be confirmed
-                    after successful payment.
+                    <span className="font-semibold">Note:</span> After booking,
+                    you'll be redirected to payment. You have 5 minutes to
+                    complete payment or the appointment will be cancelled.
                   </p>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <button
                     type="button"
@@ -362,7 +307,7 @@ const AppointmentBooking = () => {
                     className={`flex-1 px-6 py-3 font-semibold rounded-lg text-white transition-all duration-300 ${
                       submitting
                         ? "bg-blue-400 cursor-not-allowed"
-                        : "bg-linear-to-r from-blue-600 to-purple-600 hover:shadow-lg hover:scale-105"
+                        : "bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg hover:scale-105"
                     }`}
                   >
                     {submitting ? (

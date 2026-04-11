@@ -16,6 +16,17 @@ const route = (app) => {
     authMiddleware.isAuthenticated,
     appointmentController.fetchAppointmentById,
   );
+  app.delete(
+    "/hhc/api/v1/appointments/:appointmentId",
+    authMiddleware.isAuthenticated,
+    appointmentController.deleteAppointment,
+  );
+  app.get(
+    "/hhc/api/v1/doctors/:doctorId/appointments",
+    authMiddleware.isAuthenticated,
+    appointmentController.checkForAppointmentAvailability,
+  );
+
 };
 
 module.exports = route;

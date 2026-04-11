@@ -6,35 +6,30 @@ const {
 
 const createAppointments = async (req, res) => {
   try {
-    // Check if user is authenticated
     if (!req.user) {
       errorResponseBody.err = "User not authenticated";
       return res.status(401).json(errorResponseBody);
     }
 
-    // Combine date and time into a single Date object
-    const appointmentDateTime = new Date(`${req.body.appointmentDate}T${req.body.appointmentTime}`);
+    // Only date now — no time. Store as start of that day in UTC.
+    const appointmentDate = new Date(req.body.appointmentDate);
+    appointmentDate.setHours(0, 0, 0, 0);
 
-    // Validate that the combined date/time is valid
-    if (isNaN(appointmentDateTime.getTime())) {
-      errorResponseBody.err = "Invalid appointment date or time format";
+    if (isNaN(appointmentDate.getTime())) {
+      errorResponseBody.err = "Invalid appointment date format";
       return res.status(400).json(errorResponseBody);
     }
 
     const response = await appointmentService.createAppointment({
-            doctor: req.params.doctorId,
-            user: req.user, // Use req.user from auth middleware instead of req.body.user
-            dateOfAppointment: appointmentDateTime,
-            // paymentStatus intentionally NOT included here.
-            // It defaults to 'PENDING' in the model and can only be changed
-            // by the payment service after a verified payment.
-        });
+      doctor: req.params.doctorId,
+      user: req.user,
+      dateOfAppointment: appointmentDate,
+    });
 
     successResponseBody.data = response;
     successResponseBody.message = "Successfully created the Appointment";
     return res.status(201).json(successResponseBody);
   } catch (error) {
-    console.log(error);
     if (error.err) {
       errorResponseBody.err = error.err;
       return res.status(error.code).json(errorResponseBody);
@@ -58,7 +53,9 @@ const getAllAppointments = async (req, res) => {
 
 const fetchAppointmentById = async (req, res) => {
   try {
-    const response = await appointmentService.getAppointmentById(req.params.appointmentId);
+    const response = await appointmentService.getAppointmentById(
+      req.params.appointmentId
+    );
     successResponseBody.data = response;
     successResponseBody.message = "Successfully fetched the appointment";
     return res.status(200).json(successResponseBody);
@@ -68,8 +65,45 @@ const fetchAppointmentById = async (req, res) => {
   }
 };
 
+const deleteAppointment = async (req, res) => {
+  try {
+    const response = await appointmentService.deleteAppointment(
+      req.params.appointmentId
+    );
+    successResponseBody.data = response;
+    successResponseBody.message = "Appointment cancelled. Please create a new one.";
+    return res.status(200).json(successResponseBody);
+  } catch (error) {
+    if (error.err) {
+      errorResponseBody.err = error.err;
+      return res.status(error.code).json(errorResponseBody);
+    }
+    errorResponseBody.err = error;
+    return res.status(500).json(errorResponseBody);
+  }
+};
+
+const checkForAppointmentAvailability = async (req, res) => {
+  try {
+    const doctorId = req.params.doctorId;
+    const dateOfAppointment = new Date(req.query.dateOfAppointment);
+    dateOfAppointment.setHours(0, 0, 0, 0);
+
+    const response = await appointmentService.checkForAppointmentCount(doctorId, dateOfAppointment);
+    successResponseBody.data = response;
+    successResponseBody.message = "Successfully checked appointment availability";
+    return res.status(200).json(successResponseBody);
+  } catch (error) {
+    errorResponseBody.err = error;
+    return res.status(500).json(errorResponseBody);
+  }
+};
+
+
 module.exports = {
   createAppointments,
   getAllAppointments,
   fetchAppointmentById,
+  deleteAppointment,
+  checkForAppointmentAvailability
 };

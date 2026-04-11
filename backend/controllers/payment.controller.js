@@ -45,7 +45,7 @@ const initiatePayment = async (req, res) => {
 // No auth middleware on this route because Khalti hits it as a redirect (no token).
 //
 // IMPORTANT: After verification, redirect the user to the frontend with result.
-// ─────────────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────────────────
 const verifyPayment = async (req, res) => {
     try {
         const { pidx } = req.query;

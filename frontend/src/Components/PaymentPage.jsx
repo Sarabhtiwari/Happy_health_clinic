@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "./NavBar";
@@ -12,69 +12,132 @@ const PaymentPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [initiatingPayment, setInitiatingPayment] = useState(false);
+  const redirectedToKhaltiRef = useRef(false);
 
-  // Fetch appointment details
+  // Cancel appointment and navigate away
+  const cancelAndCleanup = useCallback(
+    async (reason = "back") => {
+      if (redirectedToKhaltiRef.current) return;
+      try {
+        const token = localStorage.getItem("authToken");
+        if (token && appointmentId) {
+          await axios.delete(
+            `http://localhost:5000/hhc/api/v1/appointments/${appointmentId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+        }
+      } catch (err) {
+        console.warn("Cleanup error (ignorable):", err.message);
+      }
+      navigate("/doctors", {
+        state: { message: "Appointment cancelled. Please book a new one." },
+      });
+    },
+    [appointmentId, navigate]
+  );
+
+  // Intercept browser back button → cancel appointment
+  useEffect(() => {
+    if (!appointment) return;
+    window.history.pushState({ paymentPage: true }, "");
+    const handlePopState = () => cancelAndCleanup("back");
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [appointment, cancelAndCleanup]);
+
+  // Warn user before closing/refreshing the tab
+  useEffect(() => {
+    if (!appointment || redirectedToKhaltiRef.current) return;
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [appointment]);
+
+  // Fetch appointment details on mount
   useEffect(() => {
     const fetchAppointment = async () => {
       try {
         const token = localStorage.getItem("authToken");
-
         if (!token) {
           setError("You must be logged in to proceed with payment");
           setLoading(false);
           return;
         }
-
         const response = await axios.get(
           `http://localhost:5000/hhc/api/v1/appointments/${appointmentId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-
         setAppointment(response.data.data);
         setLoading(false);
       } catch (err) {
-        const errorMessage =
+        setError(
           err.response?.data?.err ||
-          err.message ||
-          "Failed to fetch appointment details";
-        setError(errorMessage);
+            err.message ||
+            "Failed to fetch appointment details"
+        );
         setLoading(false);
       }
     };
-
-    if (appointmentId) {
-      fetchAppointment();
-    }
+    if (appointmentId) fetchAppointment();
   }, [appointmentId]);
 
-  // Handle payment initiation
   const handleInitiatePayment = async () => {
-    setInitiatingPayment(true);
-    try {
-      const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      setError("Session expired. Please log in again.");
+      navigate("/login");
+      return;
+    }
 
+    setInitiatingPayment(true);
+    setError(null);
+
+    // Pre-payment slot availability check
+    try {
+      const doctorId = appointment?.doctor?._id;
+      if (doctorId) {
+        await axios.get(
+          `http://localhost:5000/hhc/api/v1/doctors/${doctorId}/appointments`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+    } catch (err) {
+      // If the slot check fails with a specific conflict/unavailable error, abort
+      const status = err.response?.status;
+      if (status === 409 || status === 404) {
+        setError(
+          err.response?.data?.err ||
+            "This slot is no longer available. Please book a new appointment."
+        );
+        setInitiatingPayment(false);
+        return;
+      }
+      // For other errors (network etc.) we let payment proceed
+      console.warn("Slot check warning (proceeding):", err.message);
+    }
+
+    // Initiate payment
+    try {
       const response = await axios.post(
         `http://localhost:5000/hhc/api/v1/payment/initiate/${appointmentId}`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      // Redirect to Khalti payment URL
-      const { paymentUrl } = response.data.data;
-      window.location.href = paymentUrl;
+      redirectedToKhaltiRef.current = true;
+      window.location.href = response.data.data.paymentUrl;
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.err ||
-        err.message ||
-        "Failed to initiate payment";
-      setError(errorMessage);
+      setError(
+        err.response?.data?.err || err.message || "Failed to initiate payment"
+      );
       setInitiatingPayment(false);
+      redirectedToKhaltiRef.current = false;
     }
   };
+
+  // ── Render states ────────────────────────────────────────────────
 
   if (loading) {
     return (
@@ -118,8 +181,7 @@ const PaymentPage = () => {
     );
   }
 
-  // Check if appointment is already paid
-  if (appointment?.paymentStatus === 'PAID') {
+  if (appointment?.paymentStatus === "PAID") {
     return (
       <div className="py-24 bg-gray-50 min-h-screen">
         <Navbar />
@@ -145,12 +207,13 @@ const PaymentPage = () => {
     );
   }
 
+  // ── Main payment UI ──────────────────────────────────────────────
+
   return (
     <div className="py-24 bg-gray-50 min-h-screen">
       <Navbar />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-4">
               Complete Your Payment
@@ -166,9 +229,7 @@ const PaymentPage = () => {
               <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">
                 Appointment Details
               </h2>
-
               <div className="space-y-6">
-                {/* Doctor Info */}
                 <div className="flex items-center space-x-4 p-4 bg-blue-50 rounded-lg">
                   <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-200">
                     <img
@@ -189,46 +250,38 @@ const PaymentPage = () => {
                   </div>
                 </div>
 
-                {/* Appointment Info */}
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                    <span className="text-gray-600 font-medium">Appointment No:</span>
-                    <span className="text-gray-900 font-semibold">
-                      #{appointment?.appointmentNo}
-                    </span>
-                  </div>
-
                   <div className="flex justify-between items-center py-3 border-b border-gray-200">
                     <span className="text-gray-600 font-medium">Date:</span>
                     <span className="text-gray-900 font-semibold">
                       {appointment?.dateOfAppointment
-                        ? new Date(appointment.dateOfAppointment).toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
+                        ? new Date(
+                            appointment.dateOfAppointment
+                          ).toLocaleDateString("en-US", {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
                           })
-                        : 'N/A'
-                      }
+                        : "N/A"}
                     </span>
                   </div>
 
                   <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                    <span className="text-gray-600 font-medium">Time:</span>
+                    <span className="text-gray-600 font-medium">
+                      Doctor's Hours:
+                    </span>
                     <span className="text-gray-900 font-semibold">
-                      {appointment?.dateOfAppointment
-                        ? new Date(appointment.dateOfAppointment).toLocaleTimeString('en-US', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })
-                        : 'N/A'
-                      }
+                      {appointment?.doctor?.workingHours?.start || "09:00"} –{" "}
+                      {appointment?.doctor?.workingHours?.end || "18:00"}
                     </span>
                   </div>
 
                   {appointment?.description && (
                     <div className="py-3 border-b border-gray-200">
-                      <span className="text-gray-600 font-medium block mb-2">Description:</span>
+                      <span className="text-gray-600 font-medium block mb-2">
+                        Description:
+                      </span>
                       <span className="text-gray-900 font-semibold">
                         {appointment.description}
                       </span>
@@ -236,15 +289,19 @@ const PaymentPage = () => {
                   )}
 
                   <div className="flex justify-between items-center py-3 bg-green-50 px-4 rounded-lg">
-                    <span className="text-gray-600 font-medium">Payment Status:</span>
-                    <span className={`inline-flex px-3 py-1 rounded-full font-semibold text-sm ${
-                      appointment?.paymentStatus === 'PAID'
-                        ? 'bg-green-100 text-green-800'
-                        : appointment?.paymentStatus === 'FAILED'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {appointment?.paymentStatus || 'PENDING'}
+                    <span className="text-gray-600 font-medium">
+                      Payment Status:
+                    </span>
+                    <span
+                      className={`inline-flex px-3 py-1 rounded-full font-semibold text-sm ${
+                        appointment?.paymentStatus === "PAID"
+                          ? "bg-green-100 text-green-800"
+                          : appointment?.paymentStatus === "FAILED"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {appointment?.paymentStatus || "PENDING"}
                     </span>
                   </div>
                 </div>
@@ -257,7 +314,6 @@ const PaymentPage = () => {
                 Payment Summary
               </h2>
 
-              {/* Error Display */}
               {error && (
                 <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md mb-6">
                   <p className="text-red-700 font-medium">{formatError(error)}</p>
@@ -266,33 +322,39 @@ const PaymentPage = () => {
 
               <div className="space-y-4 mb-8">
                 <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                  <span className="text-gray-600 font-medium">Consultation Fee:</span>
+                  <span className="text-gray-600 font-medium">
+                    Consultation Fee:
+                  </span>
                   <span className="text-gray-900 font-semibold">
                     NPR {appointment?.doctor?.fees || 0}
                   </span>
                 </div>
-
                 <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                  <span className="text-gray-600 font-medium">Processing Fee:</span>
+                  <span className="text-gray-600 font-medium">
+                    Processing Fee:
+                  </span>
                   <span className="text-gray-900 font-semibold">Free</span>
                 </div>
-
                 <div className="flex justify-between items-center py-3 bg-blue-50 px-4 rounded-lg border-2 border-blue-200">
-                  <span className="font-semibold text-gray-900 text-lg">Total Amount:</span>
+                  <span className="font-semibold text-gray-900 text-lg">
+                    Total Amount:
+                  </span>
                   <span className="font-bold text-blue-600 text-xl">
                     NPR {appointment?.doctor?.fees || 0}
                   </span>
                 </div>
               </div>
 
-              {/* Payment Method Info */}
               <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mb-8">
                 <div className="flex items-center mb-2">
                   <span className="text-2xl mr-3">💳</span>
-                  <h3 className="font-semibold text-yellow-800">Secure Payment</h3>
+                  <h3 className="font-semibold text-yellow-800">
+                    Secure Payment via Khalti
+                  </h3>
                 </div>
                 <p className="text-sm text-yellow-700 mb-3">
-                  You'll be redirected to Khalti, Nepal's trusted digital wallet, to complete your payment securely.
+                  You'll be redirected to Khalti to complete payment. Do not
+                  press back during payment.
                 </p>
                 <ul className="text-sm text-yellow-700 space-y-1">
                   <li>• Multiple payment options (Mobile, Bank, Cards)</li>
@@ -301,7 +363,6 @@ const PaymentPage = () => {
                 </ul>
               </div>
 
-              {/* Action Buttons */}
               <div className="space-y-4">
                 <button
                   onClick={handleInitiatePayment}
@@ -315,23 +376,17 @@ const PaymentPage = () => {
                   {initiatingPayment ? (
                     <span className="flex items-center justify-center">
                       <span className="animate-spin inline-block w-5 h-5 mr-3 border-2 border-white border-t-transparent rounded-full"></span>
-                      Connecting to Khalti...
+                      Verifying & Connecting to Khalti...
                     </span>
                   ) : (
                     `Pay NPR ${appointment?.doctor?.fees || 0} Now`
                   )}
                 </button>
-
-                <button
-                  onClick={() => navigate("/appointments")}
-                  disabled={initiatingPayment}
-                  className="w-full px-8 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Back to My Appointments
-                </button>
+                <p className="text-center text-sm text-gray-500">
+                  Press your browser's back button to cancel this appointment.
+                </p>
               </div>
 
-              {/* Terms */}
               <div className="mt-6 text-center">
                 <p className="text-xs text-gray-500">
                   By proceeding, you agree to our{" "}

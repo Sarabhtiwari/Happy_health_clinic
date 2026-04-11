@@ -71,7 +71,7 @@ const initiatePayment = async (appointmentId, userId) => {
                 website_url: MY_SERVER_URL,
                 amount: amountInPaisa,         // in paisa
                 purchase_order_id: appointmentId.toString(),
-                purchase_order_name: `Doctor Appointment #${appointment.appointmentNo}`,
+                purchase_order_name: `Appointment ${appointment._id.toString().slice(-6).toUpperCase()}`,
                 customer_info: {
                     // NOTE: We only have userId here. For richer customer info,
                     // populate user before this call.
