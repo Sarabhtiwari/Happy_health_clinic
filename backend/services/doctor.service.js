@@ -21,7 +21,7 @@ const getDoctors = async() => {
     const response = await Doctor.find().populate("user", "name email");  
     return response;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     throw error;
   }
 };
@@ -34,7 +34,7 @@ const fetchDoctorById = async (doctorId) => {
     }
     return response;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     throw error;
   }
 };

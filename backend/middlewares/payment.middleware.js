@@ -10,7 +10,7 @@ const Appointment = require('../models/appointment.model');
 //   3. The appointment is not already PAID (prevent double charge)
 // ─────────────────────────────────────────────────────────────────────────────
 const validateInitiatePayment = async (req, res, next) => {
-    console.log("Validating initiate payment request...");
+    // console.log("Validating initiate payment request...");
     const { appointmentId } = req.params;
 
     // 1. Check appointmentId is present and valid

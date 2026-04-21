@@ -41,7 +41,7 @@ const createDocs = async (req, res) => {
     successResponseBody.message = "Successfully created the doctor";
     return res.status(201).json(successResponseBody);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     if (error.err) {
       errorResponseBody.err = error.err;
       return res.status(error.code).json(errorResponseBody);
@@ -58,7 +58,7 @@ const getDocs = async(req,res) => {
     successResponseBody.message = "Successfully fetched the doctors";
     return res.status(200).json(successResponseBody);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     errorResponseBody.err = error;
     return res.status(500).json(errorResponseBody);
   }
@@ -71,7 +71,7 @@ const getDocById = async(req,res) => {
     successResponseBody.message = "Successfully fetched the doctor";
     return res.status(200).json(successResponseBody);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     errorResponseBody.err = error;
     return res.status(500).json(errorResponseBody);
   }

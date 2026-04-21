@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import Navbar from "./NavBar";
 import formatError from "../utils/errorFormatter";
 
@@ -25,19 +25,7 @@ const PaymentSuccess = () => {
         }
 
         // Fetch payment details using the appointment ID
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-          setError("Authentication required");
-          setLoading(false);
-          return;
-        }
-
-        const paymentResponse = await axios.get(
-          `http://localhost:5000/hhc/api/v1/payment/appointment/${appointmentId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const paymentResponse = await api.get(`/payment/appointment/${appointmentId}`);
 
         const payment = paymentResponse.data.data;
         setPaymentData({
@@ -244,7 +232,7 @@ const PaymentSuccess = () => {
                 </button>
                 <button
                   onClick={() => navigate("/appointments")}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all"
+                  className="flex-1 px-6 py-3 bg-linear-to-r from-green-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all"
                 >
                   View My Appointments
                 </button>

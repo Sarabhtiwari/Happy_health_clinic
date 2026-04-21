@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "./NavBar";
 import formatError from "../utils/errorFormatter";
@@ -21,20 +21,24 @@ const AppointmentBooking = () => {
   const bookingDoneRef = useRef(false);
 
   useEffect(() => {
-    const fetchDoctor = async () => {
+    const loadDoctor = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/hhc/api/v1/doctors/${doctorId}`
-        );
+        await api.get("/auth/me");
+        const response = await api.get(`/doctors/${doctorId}`);
         setDoctor(response.data.data);
-        setLoading(false);
       } catch (err) {
+        const status = err.response?.status;
+        if (status === 401 || status === 403) {
+          navigate("/login", { state: { from: `/book-appointment/${doctorId}` } });
+          return;
+        }
         setError(err.response?.data?.err || err.message || "Failed to fetch doctor details");
+      } finally {
         setLoading(false);
       }
     };
-    if (doctorId) fetchDoctor();
-  }, [doctorId]);
+    if (doctorId) loadDoctor();
+  }, [doctorId, navigate]);
 
   // Block refresh after booking is created but before redirect
   useEffect(() => {
@@ -75,21 +79,10 @@ const AppointmentBooking = () => {
 
     setSubmitting(true);
     try {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        setError("You must be logged in to book an appointment");
-        setSubmitting(false);
-        return;
-      }
-
-      const response = await axios.post(
-        `http://localhost:5000/hhc/api/v1/doctors/${doctorId}/appointments`,
-        {
-          appointmentDate: formData.appointmentDate,
-          description: formData.description,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await api.post(`/doctors/${doctorId}/appointments`, {
+        appointmentDate: formData.appointmentDate,
+        description: formData.description,
+      });
 
       const appointmentId = response.data.data._id;
       bookingDoneRef.current = true;

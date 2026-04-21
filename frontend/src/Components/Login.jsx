@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import api from '../utils/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -25,27 +25,20 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Adjust this URL to match your Express backend route (e.g., /api/auth/signin)
-      const response = await axios.post('http://localhost:5000/hhc/api/v1/auth/signin', {
+      const response = await api.post('/auth/signin', {
         email: formData.email,
         password: formData.password
       });
 
-      // Your backend returns successResponseBody with a 'data' object containing the token
-      const { token,role } = response.data.data;
+      const { role } = response.data.data;
       const successMessage = response.data.message;
-      
-      // Store the JWT token in localStorage so it can be used for future authenticated requests
-      localStorage.setItem('authToken', token);
 
       setStatus({ type: 'success', message: successMessage || 'Successfully logged in!' });
       
-      // Here you would typically redirect the user based on their role using React Router
-      if (role === 'admin') navigate('/admin-dashboard'); //  BEWARE TO MAKE
+      if (role === 'admin') navigate('/admin-dashboard');
       else navigate('/');
 
     } catch (err) {
-      // Your backend sets the error message in the 'err' property of errorResponseBody
       const errorMessage = err.response?.data?.err || 'Login failed. Please check your credentials.';
       setStatus({ type: 'error', message: errorMessage });
     } finally {
@@ -66,7 +59,6 @@ const Login = () => {
           </p>
         </div>
 
-        {/* Status Messages */}
         {status.message && (
           <div className={`mb-4 p-3 rounded text-sm font-medium text-center ${
             status.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'

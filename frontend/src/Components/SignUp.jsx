@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import api from '../utils/api';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -34,7 +34,7 @@ const SignUp = () => {
 
     try {
       // Adjust this URL to match your Express backend route for user registration
-      const response = await axios.post('http://localhost:5000/hhc/api/v1/auth/signup', {
+      const response = await api.post('/auth/signup', {
         name: formData.name,
         email: formData.email,
         password: formData.password

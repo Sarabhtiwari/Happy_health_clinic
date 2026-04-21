@@ -36,20 +36,18 @@ const validateSignInRequest = async (req,res,next) => {
 const isAuthenticated = async(req,res,next) => {
     try {
         const authHeader = req.headers["authorization"];
+        const cookieToken = req.cookies?.authToken;
+        const rawHeaderToken = authHeader?.split(" ")[1];
+        const token = cookieToken || rawHeaderToken;
 
-        if (!authHeader) {
+        // console.log('auth middleware:', { cookieToken, rawHeaderToken });
+
+        if (!token) {
             errorResponseBody.err = "No token provided";
             return res.status(403).json(errorResponseBody);
         }
-
-        const token = authHeader.split(" ")[1];
-       
-        if(!token) {
-            errorResponseBody.err = "No token provided"
-            return res.status(403).json(errorResponseBody)
-        }
         
-        const response = jwt.verify(token,process.env.AUTH_KEY);
+        const response = jwt.verify(token, process.env.AUTH_KEY);
         //repsonse will have id of user
         if(!response){
             errorResponseBody.err = "Token not verified"
@@ -61,7 +59,7 @@ const isAuthenticated = async(req,res,next) => {
         req.user = user.id;
         next();
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         if(error.name == "JsonWebTokenError"){
             errorResponseBody.err = error.message;
             return res.status(401).json(errorResponseBody)

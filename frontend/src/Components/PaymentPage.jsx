@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import Navbar from "./NavBar";
 import formatError from "../utils/errorFormatter";
 
@@ -19,12 +19,8 @@ const PaymentPage = () => {
     async (reason = "back") => {
       if (redirectedToKhaltiRef.current) return;
       try {
-        const token = localStorage.getItem("authToken");
-        if (token && appointmentId) {
-          await axios.delete(
-            `http://localhost:5000/hhc/api/v1/appointments/${appointmentId}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
+        if (appointmentId) {
+          await api.delete(`/appointments/${appointmentId}`);
         }
       } catch (err) {
         console.warn("Cleanup error (ignorable):", err.message);
@@ -60,38 +56,28 @@ const PaymentPage = () => {
   useEffect(() => {
     const fetchAppointment = async () => {
       try {
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-          setError("You must be logged in to proceed with payment");
-          setLoading(false);
-          return;
-        }
-        const response = await axios.get(
-          `http://localhost:5000/hhc/api/v1/appointments/${appointmentId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const response = await api.get(`/appointments/${appointmentId}`);
         setAppointment(response.data.data);
-        setLoading(false);
       } catch (err) {
-        setError(
-          err.response?.data?.err ||
-            err.message ||
-            "Failed to fetch appointment details"
-        );
+        const status = err.response?.status;
+        if (status === 401 || status === 403) {
+          setError("You must be logged in to proceed with payment");
+          navigate("/login");
+        } else {
+          setError(
+            err.response?.data?.err ||
+              err.message ||
+              "Failed to fetch appointment details"
+          );
+        }
+      } finally {
         setLoading(false);
       }
     };
     if (appointmentId) fetchAppointment();
-  }, [appointmentId]);
+  }, [appointmentId, navigate]);
 
   const handleInitiatePayment = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setError("Session expired. Please log in again.");
-      navigate("/login");
-      return;
-    }
-
     setInitiatingPayment(true);
     setError(null);
 
@@ -99,13 +85,9 @@ const PaymentPage = () => {
     try {
       const doctorId = appointment?.doctor?._id;
       if (doctorId) {
-        await axios.get(
-          `http://localhost:5000/hhc/api/v1/doctors/${doctorId}/appointments`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await api.get(`/doctors/${doctorId}/appointments`);
       }
     } catch (err) {
-      // If the slot check fails with a specific conflict/unavailable error, abort
       const status = err.response?.status;
       if (status === 409 || status === 404) {
         setError(
@@ -115,17 +97,11 @@ const PaymentPage = () => {
         setInitiatingPayment(false);
         return;
       }
-      // For other errors (network etc.) we let payment proceed
       console.warn("Slot check warning (proceeding):", err.message);
     }
 
-    // Initiate payment
     try {
-      const response = await axios.post(
-        `http://localhost:5000/hhc/api/v1/payment/initiate/${appointmentId}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await api.post(`/payment/initiate/${appointmentId}`, {});
       redirectedToKhaltiRef.current = true;
       window.location.href = response.data.data.paymentUrl;
     } catch (err) {

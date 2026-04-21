@@ -4,39 +4,22 @@ import Navbar from "./NavBar";
 
 function HomePage() {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // State for Hamburger Menu
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
 
-    const token = localStorage.getItem("authToken");
-    if (token) setIsLoggedIn(true);
-
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    setIsLoggedIn(false);
-    navigate("/");
-    setIsMenuOpen(false);
-  };
 
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
     { name: "Doctors", path: "/doctors" },
-    { name: "Lab", path: "/lab" },
+    { name: "Membership", path: "/membership" },
     { name: "Contact", path: "/contact" },
   ];
-
-  const handleNavClick = (path) => {
-    navigate(path);
-    setIsMenuOpen(false); // Close menu on click
-  };
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">

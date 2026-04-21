@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./NavBar";
 import formatError from "../utils/errorFormatter";
@@ -13,7 +13,7 @@ const DoctorsList = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/hhc/api/v1/doctors");
+        const response = await api.get("/doctors");
         setDoctors(response.data.data);
         setLoading(false);
       } catch (err) {
@@ -25,16 +25,13 @@ const DoctorsList = () => {
     fetchDoctors();
   }, []);
 
-  const handleBookAppointment = (doctorId) => {
-    const token = localStorage.getItem("authToken");
-    console.log(token);
-    if (!token) {
-      // Redirect to login if not authenticated
+  const handleBookAppointment = async (doctorId) => {
+    try {
+      await api.get("/auth/me");
+      navigate(`/book-appointment/${doctorId}`);
+    } catch {
       navigate("/login", { state: { from: `/book-appointment/${doctorId}` } });
-      return;
     }
-    // Navigate to booking page
-    navigate(`/book-appointment/${doctorId}`);
   };
 
   if (loading)
@@ -73,7 +70,7 @@ const DoctorsList = () => {
               className="glass rounded-2xl p-6 flex flex-col items-center text-center group hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-300 relative overflow-hidden bg-white/70 backdrop-blur-md"
             >
               {/* Decorative Background Gradient on Hover */}
-              <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-blue-50 to-transparent -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="absolute top-0 left-0 w-full h-24 bg-linear-to-b from-blue-50 to-transparent -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
               {/* Doctor Image */}
               <div className="w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-white shadow-lg group-hover:border-blue-100 transition-colors">

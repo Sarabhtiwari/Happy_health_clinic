@@ -31,7 +31,7 @@ const getUserByEmail = async (email) => {
     }
     return response;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     throw error;
   }
 };
@@ -40,12 +40,12 @@ const getUserById = async (id) => {
   try {
     const user = await User.findById(id);
     if (!user) {
-      console.log(id);
-      throw { err: "No user found for the given id", code: 404 };
+      // console.log(id);
+      throw { err: "Incorrect email or password ", code: 404 };
     }
     return user;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     throw error;
   }
 };

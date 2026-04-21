@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import Navbar from "./NavBar";
 
 const PaymentFailed = () => {
@@ -58,14 +58,7 @@ const PaymentFailed = () => {
 
     setRetrying(true);
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.post(
-        `http://localhost:5000/hhc/api/v1/payment/initiate/${appointmentId}`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await api.post(`/payment/initiate/${appointmentId}`, {});
 
       if (response.data.data.paymentUrl) {
         window.location.href = response.data.data.paymentUrl;

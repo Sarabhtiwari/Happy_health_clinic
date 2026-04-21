@@ -13,6 +13,17 @@ const routes = (app) => {
     authMiddleware.validateSignInRequest,
     authController.signin,
   );
+
+  app.post(
+    "/hhc/api/v1/auth/signout",
+    authController.signout,
+  );
+
+  app.get(
+    "/hhc/api/v1/auth/me",
+    authMiddleware.isAuthenticated,
+    authController.getCurrentUser,
+  );
 };
 
 module.exports = routes;
