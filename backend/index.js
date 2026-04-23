@@ -7,7 +7,7 @@ const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-
+const path=require('path')
 const authRoutes = require('./routes/auth.route')
 const doctorRoutes = require('./routes/doctor.route')
 const appointmentRoutes = require('./routes/appointment.route')
@@ -19,9 +19,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: process.env.NODE_ENV === "production"
-    ? "https://happyhealthclinic.onrender.com"
-    : "http://localhost:5173",
+  origin:"https://happyhealthclinic.onrender.com"
   credentials: true,
 }));
 
