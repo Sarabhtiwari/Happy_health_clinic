@@ -18,20 +18,31 @@ const app = express()
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://happyhealthclinic.onrender.com'
+];
+
 app.use(cors({
-  origin:"https://happyhealthclinic.onrender.com",
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
 
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
-});
+  app.get(/^\/(?!api).*/, (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+  });
 authRoutes(app);
 doctorRoutes(app);
 appointmentRoutes(app);
-paymentRoutes(app);   // ADDED: register payment routes
+paymentRoutes(app);  
 
 app.listen(process.env.PORT, async () => {
   (`Example app listening on port ${process.env.PORT}`)

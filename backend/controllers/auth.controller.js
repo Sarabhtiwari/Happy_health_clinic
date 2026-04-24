@@ -33,8 +33,8 @@ const signin = async(req,res) => {
 
         res.cookie('authToken', token, {
             httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
+            secure: true,
+            sameSite: 'None',
             path: '/',
             maxAge: 3600000,
         });
@@ -61,8 +61,8 @@ const signin = async(req,res) => {
 const signout = async (req, res) => {
     res.cookie('authToken', '', {
         httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
+        secure: true,
+        sameSite: 'None',
         path: '/',
         expires: new Date(0),
     });
@@ -75,25 +75,29 @@ const signout = async (req, res) => {
 const getCurrentUser = async (req, res) => {
     try {
         if (!req.user) {
-            errorResponseBody.err = 'Not authenticated';
-            return res.status(401).json(errorResponseBody);
+            return res.status(401).json({
+                success: false,
+                err: 'Not authenticated'
+            });
         }
 
         const user = await userService.getUserById(req.user);
-        successResponseBody.message = 'Authenticated';
-        successResponseBody.data = {
-            email: user.email,
-            role: user.userRole,
-            name: user.name,
-        };
-        return res.status(200).json(successResponseBody);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Authenticated',
+            data: {
+                email: user.email,
+                role: user.userRole,
+                name: user.name,
+            }
+        });
+
     } catch (error) {
-        if(error.err){
-            errorResponseBody.err = error.err;
-            return res.status(error.code).json(errorResponseBody);
-        }
-        errorResponseBody.err = error;
-        return res.status(500).json(errorResponseBody);
+        return res.status(500).json({
+            success: false,
+            err: error.message || error
+        });
     }
 };
 
