@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import "./App.css";
 import HomePage from "./Components/HomePage";
@@ -14,8 +14,10 @@ import PaymentFailed from "./Components/PaymentFailed";
 import AppointmentBooking from "./Components/AppointmentBooking";
 import ProtectedAdminRoute from "./Components/ProtectedAdminRoute";
 import AdminDashboard from "./Components/AdminDashboard";
-
-function App() {
+import useAuthStore from "./zustand/UseAuthStore";
+import MyAppointments from "./Components/MyAppointments";
+                  
+function App() {  
   return (
     <>
       <Router>
@@ -34,6 +36,7 @@ function App() {
             path="/book-appointment/:doctorId"
             element={<AppointmentBooking />}
           />
+          <Route path="/my-appointments" element={<MyAppointments />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/services" element={<Services />} />

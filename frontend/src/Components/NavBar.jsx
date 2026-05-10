@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../utils/api";
-import useAuthStore from "../zustand/UseAuthStore"; 
+import useAuthStore from "../zustand/UseAuthStore";
 
 const Navbar = () => {
-
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, clearAuth } = useAuthStore(); 
+  const { user, clearAuth } = useAuthStore();
   const isLoggedIn = !!user;
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -59,8 +58,7 @@ const Navbar = () => {
     } catch (err) {
       console.warn("Logout failed:", err);
     } finally {
-      
-      clearAuth();  
+      clearAuth();
       navigate("/");
       setIsMenuOpen(false);
     }
@@ -142,12 +140,21 @@ const Navbar = () => {
 
           <div className="hidden md:flex gap-3">
             {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="px-5 py-2 bg-red-50 text-red-600 rounded-full text-sm font-semibold hover:bg-red-100 transition-all"
-              >
-                Logout
-              </button>
+              <>
+                <button
+                  onClick={() => navigate("/my-appointments")}
+                  className="px-5 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-semibold hover:bg-blue-100 transition-all"
+                >
+                  My Appointments
+                </button>
+
+                <button
+                  onClick={handleLogout}
+                  className="px-5 py-2 bg-red-50 text-red-600 rounded-full text-sm font-semibold hover:bg-red-100 transition-all"
+                >
+                  Logout
+                </button>
+              </>
             ) : (
               <>
                 <button
@@ -219,12 +226,24 @@ const Navbar = () => {
           </button>
           <hr className="border-gray-200 dark:border-slate-700" />
           {isLoggedIn ? (
-            <button
-              onClick={handleLogout}
-              className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold dark:bg-red-900 dark:text-red-300"
-            >
-              Logout
-            </button>
+            <>
+              <button
+                onClick={() => {
+                  navigate("/my-appointments");
+                  setIsMenuOpen(false);
+                }}
+                className="w-full py-3 bg-blue-50 text-blue-600 rounded-xl font-bold"
+              >
+                My Appointments
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold dark:bg-red-900 dark:text-red-300"
+              >
+                Logout
+              </button>
+            </>
           ) : (
             <button
               onClick={() => {
