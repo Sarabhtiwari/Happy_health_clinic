@@ -45,23 +45,21 @@ const useAdminStore = create((set, get) => ({
   },
 
   // ── Appointments ──────────────────────────────────────────────────────────
-  fetchAppointments: async (status = "", paymentStatus = "") => {
+  fetchAppointments: async (status = '', paymentStatus = '') => {
     set({ loading: true, error: null });
     try {
-      // Simple way: start with ? and add what we have
-      let query = "?";
+      let query = '?';
       if (status) query += `status=${status}&`;
       if (paymentStatus) query += `paymentStatus=${paymentStatus}`;
 
       const res = await api.get(`${BASE}/appointments${query}`);
-
-      const apptsArray =
-        res.data?.data?.appointments ||
-        res.data?.data ||
-        res.data?.appointments ||
-        res.data ||
-        [];
-
+      
+      // 1. Dig out whatever the backend sent
+      let rawData = res.data?.data?.appointments || res.data?.data || res.data?.appointments || res.data;
+      
+      // 2. GUARANTEE it is an array before saving it
+      const apptsArray = Array.isArray(rawData) ? rawData : [];
+      
       set({ appointments: apptsArray, loading: false });
     } catch (err) {
       get()._handleError(err);
@@ -100,19 +98,16 @@ const useAdminStore = create((set, get) => ({
   },
 
   // ── Users ─────────────────────────────────────────────────────────────────
-  fetchUsers: async (role = "") => {
+  fetchUsers: async (role = '') => {
     set({ loading: true, error: null });
     try {
-      const query = role ? `?role=${role}` : "";
+      const query = role ? `?role=${role}` : '';
       const res = await api.get(`${BASE}/users${query}`);
 
-      const usersArray =
-        res.data?.data?.users ||
-        res.data?.data ||
-        res.data?.users ||
-        res.data ||
-        [];
-
+      let rawData = res.data?.data?.users || res.data?.data || res.data?.users || res.data;
+      
+      const usersArray = Array.isArray(rawData) ? rawData : [];
+      
       set({ users: usersArray, loading: false });
     } catch (err) {
       get()._handleError(err);
