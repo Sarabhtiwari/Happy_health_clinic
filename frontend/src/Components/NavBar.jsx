@@ -60,8 +60,7 @@ const Navbar = () => {
       console.warn("Logout failed:", err);
     } finally {
       
-      clearAuth(); 
-      setIsLoggedIn(false); 
+      clearAuth();  
       navigate("/");
       setIsMenuOpen(false);
     }
