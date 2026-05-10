@@ -27,7 +27,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post("/hhc/api/v1/auth/signin", {
+      const response = await api.post("/hhc/api/v1/auth/signin", {   //remove /hhc/api/v1  for local and keep it for production 
         email: formData.email,
         password: formData.password,
       });

@@ -55,7 +55,13 @@ const useAdminStore = create((set, get) => ({
 
       const res = await api.get(`${BASE}/appointments${query}`);
 
-      const apptsArray = res.data.data.appointments || res.data.data;
+      const apptsArray =
+        res.data?.data?.appointments ||
+        res.data?.data ||
+        res.data?.appointments ||
+        res.data ||
+        [];
+
       set({ appointments: apptsArray, loading: false });
     } catch (err) {
       get()._handleError(err);
@@ -100,7 +106,12 @@ const useAdminStore = create((set, get) => ({
       const query = role ? `?role=${role}` : "";
       const res = await api.get(`${BASE}/users${query}`);
 
-      const usersArray = res.data.data.users || res.data.data;
+      const usersArray =
+        res.data?.data?.users ||
+        res.data?.data ||
+        res.data?.users ||
+        res.data ||
+        [];
 
       set({ users: usersArray, loading: false });
     } catch (err) {
