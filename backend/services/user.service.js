@@ -50,8 +50,39 @@ const getUserById = async (id) => {
   }
 };
 
+const countByRole = async (role) => {
+  return await User.countDocuments({ userRole: role });
+};
+
+const getAll = async (filter = {}, page = 1, limit = 10) => {
+  try {
+    const pageNumber = parseInt(page, 10) || 1;
+    const limitNumber = parseInt(limit, 10) || 10;
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const users = await User.find(filter)
+      .select('-password') 
+      .sort({ createdAt: -1 }) 
+      .skip(skip)
+      .limit(limitNumber);
+
+    const totalUsers = await User.countDocuments(filter);
+
+    return {
+      users,
+      total: totalUsers,
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalUsers / limitNumber),
+    };
+  } catch (error) {
+    throw error;
+  }
+};
 module.exports = {
   createUser,
   getUserByEmail,
   getUserById,
+  countByRole,
+  getAll
 };

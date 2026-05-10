@@ -12,15 +12,28 @@ import PaymentPage from "./Components/PaymentPage";
 import PaymentSuccess from "./Components/PaymentSuccess";
 import PaymentFailed from "./Components/PaymentFailed";
 import AppointmentBooking from "./Components/AppointmentBooking";
+import ProtectedAdminRoute from "./Components/ProtectedAdminRoute";
+import AdminDashboard from "./Components/AdminDashboard";
 
 function App() {
   return (
     <>
       <Router>
         <Routes>
+          <Route
+            path="/admin"
+            element={
+              <ProtectedAdminRoute>
+                <AdminDashboard />
+              </ProtectedAdminRoute>
+            }
+          />
           <Route path="/" element={<HomePage />} />
           <Route path="/doctors" element={<DoctorsList />} />
-          <Route path="/book-appointment/:doctorId" element={<AppointmentBooking />} />
+          <Route
+            path="/book-appointment/:doctorId"
+            element={<AppointmentBooking />}
+          />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/services" element={<Services />} />

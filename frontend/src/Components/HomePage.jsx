@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./NavBar";
+import useAuthStore from "../zustand/UseAuthStore";
 
-function HomePage() {
+const HomePage = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, isAdmin } = useAuthStore();
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -23,8 +25,8 @@ function HomePage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
-        <Navbar />
-      
+      <Navbar />
+
       {/* --- HERO SECTION --- */}
       <section className="relative min-h-[90vh] flex items-center pt-20 overflow-hidden bg-gray-50 px-4">
         <div className="container mx-auto px-2 lg:px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
@@ -50,6 +52,31 @@ function HomePage() {
               >
                 Our Treatments
               </button>
+
+              {/* ── ADMIN BUTTON — only shown when logged in as ADMIN ── */}
+              {isAuthenticated && isAdmin && (
+                <button
+                  onClick={() => navigate("/admin")}
+                  className="px-8 py-4 bg-gray-900 text-white font-medium rounded-xl hover:bg-gray-700 hover:scale-105 transition-all flex items-center justify-center gap-2"
+                >
+                  {/* Lock icon inline SVG */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
+                  </svg>
+                  Admin Panel
+                </button>
+              )}
             </div>
           </div>
 
@@ -137,19 +164,17 @@ function HomePage() {
                     Expert specialized care tailored to your specific skin
                     needs.
                   </p>
-                  <button
-                    className="text-blue-600 text-sm font-bold group-hover:gap-2 flex items-center transition-all cursor-pointer"
-                  >
+                  <button className="text-blue-600 text-sm font-bold group-hover:gap-2 flex items-center transition-all cursor-pointer">
                     Learn More
                   </button>
                 </div>
-              ),
+              )
             )}
           </div>
         </div>
       </section>
     </div>
   );
-}
+};
 
 export default HomePage;

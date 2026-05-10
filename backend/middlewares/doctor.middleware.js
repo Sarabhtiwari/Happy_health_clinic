@@ -30,28 +30,7 @@ const validateCreateDoctorRequest = async (req, res, next) => {
   next();
 };
 
-const isAdmin = async (req, res, next) => {
-  try {
-    const id = req.user;
-    const user = await User.findById(id); //we're giving one doctor the
-    // status of admin admin details in user and rest of details of doctor admin in doctor model
-    if (!user) {
-      errorResponseBody.err = "No user found for the given id";
-      return res.status(404).json(errorResponseBody);
-    }
 
-    if (!user.userRole || user.userRole !== "ADMIN") {
-      errorResponseBody.err = "User is not admin";
-      return res.status(403).json(errorResponseBody);
-    }
-    next();
-  } catch (error) {
-    // console.log(error);
-    errorResponseBody.err = error;
-    return res.status(500).json(errorResponseBody);
-  }
-};
 module.exports = {
-  validateCreateDoctorRequest,
-  isAdmin
+  validateCreateDoctorRequest
 };

@@ -57,6 +57,7 @@ const isAuthenticated = async(req,res,next) => {
         const user = await userService.getUserById(response.id);
        
         req.user = user.id;
+        req.userRole = user.userRole;
         next();
     } catch (error) {
         // console.log(error);

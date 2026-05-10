@@ -53,7 +53,13 @@ const getAppointments = async (data) => {
 
     const response = await Appointment.find(query)
       .populate("user", "name email userRole")
-      .populate("doctor")
+      .populate({
+        path: "doctor",
+        populate: {
+          path: "user",
+          select: "name email",   //just to display the doctor name in the frontend
+        },
+      })
       .populate("payment")
       .limit(limit)
       .skip(page * limit)
@@ -99,13 +105,14 @@ const deleteAppointment = async (id) => {
     throw error;
   }
 };
-const checkForAppointmentCount = async(doctorId, dateOfAppointment) => {
+
+const checkForAppointmentCount = async (doctorId, dateOfAppointment) => {
   try {
     const doctor = await Doctor.findById(doctorId);
     const count = await Appointment.countDocuments({
       doctor: doctorId,
       dateOfAppointment: dateOfAppointment,
-      paymentStatus: "PAID"
+      paymentStatus: "PAID",
     });
     return count < doctor.maxAppointmentsPerDay;
   } catch (error) {
@@ -113,10 +120,19 @@ const checkForAppointmentCount = async(doctorId, dateOfAppointment) => {
   }
 };
 
+const countAll = async () => {
+  return await Appointment.countDocuments();
+};
+
+const countByStatus = async (status) => {
+  return await Appointment.countDocuments({ status: status });
+};
 module.exports = {
   createAppointment,
   getAppointments,
   getAppointmentById,
   deleteAppointment,
-  checkForAppointmentCount
+  checkForAppointmentCount,
+  countAll,
+  countByStatus,
 };
