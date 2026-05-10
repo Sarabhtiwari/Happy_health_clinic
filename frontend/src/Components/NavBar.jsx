@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../utils/api";
+import useAuthStore from "../zustand/UseAuthStore"; 
 
 const Navbar = () => {
+
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, clearAuth } = useAuthStore(); 
+  const isLoggedIn = !!user;
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -22,21 +25,22 @@ const Navbar = () => {
     setIsDarkMode(startDark);
     document.documentElement.classList.toggle("dark", startDark);
 
-    const fetchAuthStatus = async () => {
-      try {
-        const res = await api.get("/auth/me");
+    // const fetchAuthStatus = async () => {
+    //   try {
+    //     const res = await api.get("/auth/me");
 
-        if (res.data?.success) {
-          setIsLoggedIn(true);
-        } else {
-          setIsLoggedIn(false);
-        }
-      } catch (err) {
-        setIsLoggedIn(false);
-      }
-    };
+    //     if (res.data?.success) {
+    //       setIsLoggedIn(true);
+    //     } else {
+    //       setIsLoggedIn(false);
+    //     }
+    //   } catch (err) {
+    //     setIsLoggedIn(false);
+    //   }
+    // };
 
-    fetchAuthStatus();
+    // fetchAuthStatus();
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, [location.pathname]);
 
@@ -53,11 +57,14 @@ const Navbar = () => {
     try {
       await api.post("/auth/signout");
     } catch (err) {
-      console.warn(err);
+      console.warn("Logout failed:", err);
+    } finally {
+      
+      clearAuth(); 
+      setIsLoggedIn(false); 
+      navigate("/");
+      setIsMenuOpen(false);
     }
-    setIsLoggedIn(false);
-    navigate("/");
-    setIsMenuOpen(false);
   };
 
   const navLinks = [
