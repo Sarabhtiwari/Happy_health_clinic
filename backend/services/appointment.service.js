@@ -27,12 +27,12 @@ const getAppointments = async (data) => {
     if (data?.status) query.status = data.status;
     if (data?.paymentStatus) query.paymentStatus = data.paymentStatus;
 
-    if (data?.startDate && data?.endDate) {
-      query.dateOfAppointment = {
-        $gte: new Date(data.startDate),
-        $lte: new Date(data.endDate),
-      };
-    }
+    // if (data?.startDate && data?.endDate) {
+    //   query.dateOfAppointment = {
+    //     $gte: new Date(data.startDate),
+    //     $lte: new Date(data.endDate),
+    //   };
+    // }
 
     if (data?.userName) {
       const users = await User.find({
@@ -41,12 +41,15 @@ const getAppointments = async (data) => {
       query.user = { $in: users.map((u) => u._id) };
     }
 
-    if (data?.doctorName) {
-      const doctors = await Doctor.find({
-        name: { $regex: data.doctorName, $options: "i" },
-      }).select("_id");
-      query.doctor = { $in: doctors.map((d) => d._id) };
-    }
+    const doctorUsers = await User.find({
+      name: { $regex: data.doctorName, $options: "i" },
+    }).select("_id");
+
+    const doctors = await Doctor.find({
+      user: { $in: doctorUsers.map((u) => u._id) },
+    }).select("_id");
+
+    query.doctor = { $in: doctors.map((d) => d._id) };
 
     const limit = parseInt(data?.limit) || 10;
     const page = parseInt(data?.skip) || 0;
@@ -57,7 +60,7 @@ const getAppointments = async (data) => {
         path: "doctor",
         populate: {
           path: "user",
-          select: "name email",   //just to display the doctor name in the frontend
+          select: "name email", //just to display the doctor name in the frontend
         },
       })
       .populate("payment")
@@ -127,6 +130,51 @@ const countAll = async () => {
 const countByStatus = async (status) => {
   return await Appointment.countDocuments({ status: status });
 };
+
+const getAppointmentsByUserID = async (userId, filters) => {
+  try {
+    const { paymentStatus, date } = filters;
+
+    let query = {
+      user: userId,
+    };
+
+    if (paymentStatus) {
+      query.paymentStatus = paymentStatus;
+    }
+
+    // // ─── DATE FILTER ─────────────────────────────────────────
+    // if (date) {
+
+    //   const start = new Date(date);
+    //   start.setHours(0, 0, 0, 0);
+
+    //   const end = new Date(date);
+    //   end.setHours(23, 59, 59, 999);
+
+    //   query.dateOfAppointment = {
+    //     $gte: start,
+    //     $lte: end,
+    //   };
+    // }
+
+    const appointments = await Appointment.find(query)
+      .populate({
+        path: "doctor",
+        populate: {
+          path: "user",
+          select: "name email phone",
+        },
+      })
+      .populate("payment")
+      .sort({ dateOfAppointment: -1 });
+
+    return appointments;
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   createAppointment,
   getAppointments,
@@ -135,4 +183,5 @@ module.exports = {
   checkForAppointmentCount,
   countAll,
   countByStatus,
+  getAppointmentsByUserID,
 };

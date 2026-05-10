@@ -9,8 +9,6 @@ const route = (app) => {
     appointmentMiddleware.validateAppointmentRequest,
     appointmentController.createAppointments,
   );
-
-  app.get("/hhc/api/v1/appointments", appointmentController.getAllAppointments);
   app.get(
     "/hhc/api/v1/appointments/:appointmentId",
     authMiddleware.isAuthenticated,
@@ -26,7 +24,11 @@ const route = (app) => {
     authMiddleware.isAuthenticated,
     appointmentController.checkForAppointmentAvailability,
   );
-
+  app.get(
+    "/hhc/api/v1/appointments",
+    authMiddleware.isAuthenticated,
+    appointmentController.getAppointmentsByUserID
+  )
 };
 
 module.exports = route;

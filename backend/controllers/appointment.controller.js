@@ -54,7 +54,7 @@ const getAllAppointments = async (req, res) => {
 const fetchAppointmentById = async (req, res) => {
   try {
     const response = await appointmentService.getAppointmentById(
-      req.params.appointmentId
+      req.params.appointmentId,
     );
     successResponseBody.data = response;
     successResponseBody.message = "Successfully fetched the appointment";
@@ -68,10 +68,11 @@ const fetchAppointmentById = async (req, res) => {
 const deleteAppointment = async (req, res) => {
   try {
     const response = await appointmentService.deleteAppointment(
-      req.params.appointmentId
+      req.params.appointmentId,
     );
     successResponseBody.data = response;
-    successResponseBody.message = "Appointment cancelled. Please create a new one.";
+    successResponseBody.message =
+      "Appointment cancelled. Please create a new one.";
     return res.status(200).json(successResponseBody);
   } catch (error) {
     if (error.err) {
@@ -89,9 +90,13 @@ const checkForAppointmentAvailability = async (req, res) => {
     const dateOfAppointment = new Date(req.query.dateOfAppointment);
     dateOfAppointment.setHours(0, 0, 0, 0);
 
-    const response = await appointmentService.checkForAppointmentCount(doctorId, dateOfAppointment);
+    const response = await appointmentService.checkForAppointmentCount(
+      doctorId,
+      dateOfAppointment,
+    );
     successResponseBody.data = response;
-    successResponseBody.message = "Successfully checked appointment availability";
+    successResponseBody.message =
+      "Successfully checked appointment availability";
     return res.status(200).json(successResponseBody);
   } catch (error) {
     errorResponseBody.err = error;
@@ -99,11 +104,30 @@ const checkForAppointmentAvailability = async (req, res) => {
   }
 };
 
+const getAppointmentsByUserID = async (req, res) => {
+  try {
+    const response = await appointmentService.getAppointmentsByUserID(
+      req.user,
+      req.query,
+    );
+
+    successResponseBody.data = response;
+
+    successResponseBody.message = "Successfully fetched your appointments";
+
+    return res.status(200).json(successResponseBody);
+  } catch (error) {
+    errorResponseBody.err = error.err || error;
+
+    return res.status(error.code || 500).json(errorResponseBody);
+  }
+};
 
 module.exports = {
   createAppointments,
   getAllAppointments,
   fetchAppointmentById,
   deleteAppointment,
-  checkForAppointmentAvailability
+  checkForAppointmentAvailability,
+  getAppointmentsByUserID,
 };

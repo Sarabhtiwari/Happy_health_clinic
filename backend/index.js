@@ -45,11 +45,11 @@ appointmentRoutes(app);
 paymentRoutes(app);
 adminRoutes(app);
 
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
+// app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
-});
+// app.get(/^\/(?!api).*/, (req, res) => {
+//   res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+// });
 
 app.listen(process.env.PORT, async () => {
   `Example app listening on port ${process.env.PORT}`;

@@ -54,6 +54,14 @@ const routes = (app) => {
     adminMiddleware.isAdmin,
     adminController.deleteUser,
   );
+
+  // this service is in appointment service and controller in appointment controller
+  app.get(
+    "/hhc/api/v1/admin/appointments",
+    authMiddleware.isAuthenticated,
+    adminMiddleware.isAdmin,
+    appointmentController.getAllAppointments
+  );
 };
 
 module.exports = routes;
