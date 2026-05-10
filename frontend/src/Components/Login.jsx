@@ -27,7 +27,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post("/auth/signin", {
+      const response = await api.post("/hhc/api/v1/auth/signin", {
         email: formData.email,
         password: formData.password,
       });
