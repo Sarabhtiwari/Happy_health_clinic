@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import useAdminStore from "../zustand/UseAdminStore";
 import useAuthStore from "../zustand/UseAuthStore";
 import { StatCard } from "./AdminShared";
-import { AppointmentsTab, UsersTab } from "./AdminTabs";
-import api from "../utils/api"
+import { AppointmentsTab, UsersTab, ServiceAppointmentsTab } from "./AdminTabs";
+import api from "../utils/api";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -101,7 +101,7 @@ const AdminDashboard = () => {
 
         {/* Tabs */}
         <div className="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit mb-6">
-          {["appointments", "users"].map((tab) => (
+          {["appointments", "users", "service appointments"].map((tab) => (
             <button
               key={tab}
               onClick={() => setTab(tab)}
@@ -119,6 +119,7 @@ const AdminDashboard = () => {
         {/* Tab panels */}
         {activeTab === "appointments" && <AppointmentsTab />}
         {activeTab === "users" && <UsersTab />}
+        {activeTab === "service appointments" && <ServiceAppointmentsTab />}
       </main>
     </div>
   );

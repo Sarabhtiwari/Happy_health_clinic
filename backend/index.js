@@ -13,6 +13,8 @@ const doctorRoutes = require("./routes/doctor.route");
 const appointmentRoutes = require("./routes/appointment.route");
 const paymentRoutes = require("./routes/payment.route");
 const adminRoutes = require("./routes/admin.route");
+const serviceRoutes = require("./routes/services.route");
+const serviceAppointmentRoutes = require("./routes/serviceAppointment.route");
 
 const app = express();
 
@@ -44,12 +46,14 @@ doctorRoutes(app);
 appointmentRoutes(app);
 paymentRoutes(app);
 adminRoutes(app);
+serviceRoutes(app);
+serviceAppointmentRoutes(app);
 
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
+// app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
-});
+// app.get(/^\/(?!api).*/, (req, res) => {
+//   res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+// });
 
 app.listen(process.env.PORT, async () => {
   `Example app listening on port ${process.env.PORT}`;

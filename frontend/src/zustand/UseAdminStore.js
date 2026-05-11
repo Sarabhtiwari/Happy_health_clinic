@@ -14,7 +14,8 @@ const useAdminStore = create((set, get) => ({
   loading: false,
   error: null,
   activeTab: "appointments",
-
+serviceAppointments: [],
+serviceAppointmentsLoading: false,
   // ── Helpers ───────────────────────────────────────────────────────────────
   _handleError: (err) => {
     let msg = err.response?.data?.err || err.message || "Something went wrong";
@@ -144,6 +145,38 @@ const useAdminStore = create((set, get) => ({
       get()._handleError(err);
     }
   },
+
+  fetchServiceAppointments: async (filters = {}) => {
+  set({ serviceAppointmentsLoading: true });
+  try {
+    const params = new URLSearchParams();
+    if (filters.name) params.append("name", filters.name);
+    if (filters.mob_no) params.append("mob_no", filters.mob_no);
+
+    const res = await api.get(`/service-appointments?${params.toString()}`);
+    set({ serviceAppointments: res.data.data || [] });
+  } catch (error) {
+    set({ error: error.response?.data?.err || "Failed to fetch service appointments" });
+  } finally {
+    set({ serviceAppointmentsLoading: false });
+  }
+},
+
+updateServiceAppointmentStatus: async (id, status) => {
+  try {
+    const res = await api.patch(`/service-appointments/${id}/status`, { status });
+    // Update only that one row in state — no refetch needed
+    set((state) => ({
+      serviceAppointments: state.serviceAppointments.map((a) =>
+        a._id === id ? res.data.data : a
+      ),
+    }));
+  } catch (error) {
+    set({ error: error.response?.data?.err || "Failed to update status" });
+  }
+},
+
+
 }));
 
 export default useAdminStore;
