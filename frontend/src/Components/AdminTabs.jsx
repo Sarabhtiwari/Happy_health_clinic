@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useAdminStore from "../zustand/UseAdminStore";
 import useAuthStore from "../zustand/UseAuthStore";
+import SearchBarForAdminAppointSearch from "./SearchBarForAdminAppointSearch";
+
 import {
   Badge,
   ConfirmModal,
@@ -202,7 +204,6 @@ const AddDoctorModal = ({ onClose }) => {
 };
 
 // ── Appointments tab ─────────────────────────────────────────────────────────
-// ── Appointments tab ─────────────────────────────────────────────────────────
 export const AppointmentsTab = () => {
   const {
     appointments,
@@ -211,13 +212,38 @@ export const AppointmentsTab = () => {
     updateAppointmentStatus,
     deleteAppointment,
   } = useAdminStore();
-  const [filter, setFilter] = useState("");
+
   const [paymentFilter, setPaymentFilter] = useState("");
   const [confirm, setConfirm] = useState(null);
 
+  const [searchFilters, setSearchFilters] = useState({
+    patientName: "",
+    doctorName: "",
+    email: "",
+    mob_no: "",
+  });
+
+ const loadAppointments = (updatedFilters = searchFilters, payment = paymentFilter) => {
+    // Pass as a single object so order doesn't matter at all
+    fetchAppointments({
+      paymentStatus: payment,
+      patientName: updatedFilters.patientName,
+      doctorName: updatedFilters.doctorName,
+      email: updatedFilters.email,
+      mob_no: updatedFilters.mob_no
+    });
+  };
+
+  // INITIAL LOAD: Fetch data when tab opens
   useEffect(() => {
-    fetchAppointments(filter, paymentFilter);
-  }, [filter, paymentFilter, fetchAppointments]);
+    loadAppointments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handlePaymentChange = (status) => {
+    setPaymentFilter(status);
+    loadAppointments(searchFilters, status); // Fetch on payment filter click
+  };
 
   const handleStatusChange = (id, status) => {
     setConfirm({ type: "status", id, value: status });
@@ -238,6 +264,17 @@ export const AppointmentsTab = () => {
 
   return (
     <div>
+      {/* SEARCH BAR */}
+      <SearchBarForAdminAppointSearch
+        onSearch={(filters) => {
+          setSearchFilters(filters); // Keep parent state in sync
+        }}
+        onSearchClick={(filters) => {
+          // Trigger fetch ONLY when this button is clicked
+          loadAppointments(filters, paymentFilter);
+        }}
+      />
+
       {confirm && (
         <ConfirmModal
           message={
@@ -250,11 +287,12 @@ export const AppointmentsTab = () => {
         />
       )}
 
+      {/* PAYMENT FILTER */}
       <div className="flex gap-2 mb-6 flex-wrap">
         {["", "PENDING", "PAID", "FAILED"].map((s) => (
           <button
             key={s}
-            onClick={() => setPaymentFilter(s)}
+            onClick={() => handlePaymentChange(s)}
             className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${
               paymentFilter === s
                 ? "bg-blue-600 text-white border-blue-600"
@@ -266,9 +304,11 @@ export const AppointmentsTab = () => {
         ))}
       </div>
 
+      {/* TABLE */}
       {loading && (
-        <p className="text-sm text-gray-400 py-8 text-center">Loading…</p>
+        <p className="text-sm text-gray-400 py-8 text-center">Loading...</p>
       )}
+
       {!loading && appointments.length === 0 && (
         <p className="text-sm text-gray-400 py-8 text-center">
           No appointments found.
@@ -289,65 +329,31 @@ export const AppointmentsTab = () => {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {appointments.map((appt) => (
-                <tr
-                  key={appt._id}
-                  className="bg-white hover:bg-gray-50/60 transition-colors"
-                >
-                  {/* Fixed: Accessing 'user' directly */}
-                  <td className="px-5 py-4 font-medium text-gray-800">
+                <tr key={appt._id} className="bg-white hover:bg-gray-50/60">
+                  <td className="px-5 py-4 font-medium">
                     {appt.user?.name ?? "—"}
                   </td>
-
-                  {/* Fixed: Accessing doctor.user.name or doctor.name */}
-                  <td className="px-5 py-4 text-gray-600">
-                    {appt.doctor?.user?.name ?? appt.doctor?.name ?? "—"}
+                  <td className="px-5 py-4">
+                    {appt.doctor?.user?.name ?? "—"}
                   </td>
-
-                  {/* Fixed: Accessing dateOfAppointment */}
-                  <td className="px-5 py-4 text-gray-500">
+                  <td className="px-5 py-4">
                     {appt.dateOfAppointment
                       ? new Date(appt.dateOfAppointment).toLocaleDateString()
                       : "—"}
                   </td>
-
-                  {/* Fixed: Checking both paymentStatus and status just to be safe */}
                   <td className="px-5 py-4">
                     <Badge
-                      label={appt.paymentStatus ?? appt.status ?? "PENDING"}
+                      label={appt.paymentStatus ?? "PENDING"}
                       colorMap={STATUS_COLORS}
                     />
                   </td>
-
                   <td className="px-5 py-4">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <select
-                        defaultValue=""
-                        onChange={(e) => {
-                          if (e.target.value)
-                            handleStatusChange(appt._id, e.target.value);
-                          e.target.value = "";
-                        }}
-                        className="text-xs border border-gray-200 rounded-lg px-2 py-1 text-gray-600 bg-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-400"
-                      >
-                        <option value="">Change status</option>
-                        {/* Using paymentStatus as the current filter */}
-                        {["PENDING", "PAID", "FAILED"]
-                          .filter(
-                            (s) => s !== (appt.paymentStatus || appt.status),
-                          )
-                          .map((s) => (
-                            <option key={s} value={s}>
-                              {s}
-                            </option>
-                          ))}
-                      </select>
-                      <button
-                        onClick={() => handleDelete(appt._id)}
-                        className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    <button 
+                      onClick={() => handleDelete(appt._id)}
+                      className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}

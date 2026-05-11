@@ -45,21 +45,27 @@ const useAdminStore = create((set, get) => ({
   },
 
   // ── Appointments ──────────────────────────────────────────────────────────
-  fetchAppointments: async (status = '', paymentStatus = '') => {
+  fetchAppointments: async (filters = {}) => {
     set({ loading: true, error: null });
     try {
-      let query = '?';
-      if (status) query += `status=${status}&`;
-      if (paymentStatus) query += `paymentStatus=${paymentStatus}`;
+      const { paymentStatus, patientName, doctorName, email, mob_no } = filters;
+      let query = "?";
+      if (paymentStatus) query += `paymentStatus=${paymentStatus}&`;
+      if (patientName) query += `userName=${patientName}&`;
+      if (doctorName) query += `doctorName=${doctorName}&`;
+      if (email) query += `email=${email}&`;
+      if (mob_no) query += `mob_no=${mob_no}&`;
 
       const res = await api.get(`${BASE}/appointments${query}`);
-      
-      // 1. Dig out whatever the backend sent
-      let rawData = res.data?.data?.appointments || res.data?.data || res.data?.appointments || res.data;
-      
-      // 2. GUARANTEE it is an array before saving it
+
+      let rawData =
+        res.data?.data?.appointments ||
+        res.data?.data ||
+        res.data?.appointments ||
+        res.data;
+
       const apptsArray = Array.isArray(rawData) ? rawData : [];
-      
+
       set({ appointments: apptsArray, loading: false });
     } catch (err) {
       get()._handleError(err);
@@ -98,16 +104,17 @@ const useAdminStore = create((set, get) => ({
   },
 
   // ── Users ─────────────────────────────────────────────────────────────────
-  fetchUsers: async (role = '') => {
+  fetchUsers: async (role = "") => {
     set({ loading: true, error: null });
     try {
-      const query = role ? `?role=${role}` : '';
+      const query = role ? `?role=${role}` : "";
       const res = await api.get(`${BASE}/users${query}`);
 
-      let rawData = res.data?.data?.users || res.data?.data || res.data?.users || res.data;
-      
+      let rawData =
+        res.data?.data?.users || res.data?.data || res.data?.users || res.data;
+
       const usersArray = Array.isArray(rawData) ? rawData : [];
-      
+
       set({ users: usersArray, loading: false });
     } catch (err) {
       get()._handleError(err);

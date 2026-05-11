@@ -24,44 +24,72 @@ const getAppointments = async (data) => {
   try {
     let query = {};
 
-    if (data?.status) query.status = data.status;
-    if (data?.paymentStatus) query.paymentStatus = data.paymentStatus;
-
-    // if (data?.startDate && data?.endDate) {
-    //   query.dateOfAppointment = {
-    //     $gte: new Date(data.startDate),
-    //     $lte: new Date(data.endDate),
-    //   };
-    // }
-
-    if (data?.userName) {
-      const users = await User.find({
-        name: { $regex: data.userName, $options: "i" },
-      }).select("_id");
-      query.user = { $in: users.map((u) => u._id) };
+    if (data?.paymentStatus) {
+      query.paymentStatus = data.paymentStatus;
     }
 
-    const doctorUsers = await User.find({
-      name: { $regex: data.doctorName, $options: "i" },
-    }).select("_id");
+    if (data?.userName || data?.email || data?.mob_no) {
+      let userQuery = {};
 
-    const doctors = await Doctor.find({
-      user: { $in: doctorUsers.map((u) => u._id) },
-    }).select("_id");
+      if (data?.userName) {
+        userQuery.name = { $regex: data.userName, $options: "i" };
+      }
 
-    query.doctor = { $in: doctors.map((d) => d._id) };
+      if (data?.email) {
+        userQuery.email = { $regex: data.email, $options: "i" };
+      }
+
+      if (data?.mob_no) {
+        userQuery.mob_no = { $regex: data.mob_no, $options: "i" };
+      }
+
+      const users = await User.find(userQuery).select("_id");
+
+      if (users.length === 0) {
+        return {
+          appointments: [],
+          total: 0,
+          currentPage: 0,
+          totalPages: 0,
+        };
+      }
+
+      query.user = {
+        $in: users.map((u) => u._id),
+      };
+    }
+
+    if (data?.doctorName) {
+      const doctorUsers = await User.find({
+        name: { $regex: data.doctorName, $options: "i" },
+      }).select("_id");
+
+      const doctors = await Doctor.find({
+        user: { $in: doctorUsers.map((u) => u._id) },
+      }).select("_id");
+
+      if (doctors.length === 0) {
+        return {
+          appointments: [],
+          total: 0,
+          currentPage: 0,
+          totalPages: 0,
+        };
+      }
+
+      query.doctor = {
+        $in: doctors.map((d) => d._id),
+      };
+    }
 
     const limit = parseInt(data?.limit) || 10;
     const page = parseInt(data?.skip) || 0;
 
     const response = await Appointment.find(query)
-      .populate("user", "name email userRole")
+      .populate("user", "name email mob_no userRole")
       .populate({
         path: "doctor",
-        populate: {
-          path: "user",
-          select: "name email", //just to display the doctor name in the frontend
-        },
+        populate: { path: "user", select: "name email" },
       })
       .populate("payment")
       .limit(limit)
