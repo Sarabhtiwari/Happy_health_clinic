@@ -14,16 +14,15 @@ const routes = (app) => {
     authController.signin,
   );
 
-  app.post(
-    "/hhc/api/v1/auth/signout",
-    authController.signout,
-  );
+  app.post("/hhc/api/v1/auth/signout", authController.signout);
 
   app.get(
     "/hhc/api/v1/auth/me",
     authMiddleware.isAuthenticated,
     authController.getCurrentUser,
   );
+  app.post("/hhc/api/v1/auth/verify-otp", authController.verifyOtp);
+  app.post("/hhc/api/v1/auth/resend-otp", authController.resendOtp);
 };
 
 module.exports = routes;

@@ -1,24 +1,88 @@
 const userService = require('../services/user.service');
+const otpService = require('../services/otp.service');
 const { successResponseBody, errorResponseBody } = require('../utils/responseBody');
+
 const jwt = require('jsonwebtoken')
 
-const signup = async(req,res) => {
-    try {
-        const data = {...req.body, userRole: "PATIENT"};
-        const response = await userService.createUser(data);
-        successResponseBody.data = response;
-        successResponseBody.message = "Successfully created the user";
-        return res.status(201).json(successResponseBody);
-    } catch (error) {
-        // console.log(error);
-        if(error.err){
-            errorResponseBody.err = error.err;
-            return res.status(error.code).json(errorResponseBody);
-        }
-        errorResponseBody.err = error;
-        return res.status(500).json(errorResponseBody);
+const signup = async (req, res) => {
+  try {
+   const { name, email, password, mob_no } = req.body;
+   
+   const existingUser = await userService.getUserByEmail(email).catch(() => null);
+   if (existingUser) {
+       return res.status(409).json({ success: false, err: "Email already registered." });
     }
+    
+    await otpService.sendOtp({ name, email, password, mob_no, userRole: "PATIENT" });
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent to your email. Please verify to complete registration.",
+      data: {},
+    });
+  } catch (error) {
+    return res.status(error.code || 500).json({
+      success: false,
+      err: error.err || error.message,
+    });
+  }
 };
+
+const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, err: "Email and OTP are required." });
+    }
+
+    const newUser = await otpService.verifyOtp(
+      email,
+      otp,
+      (userData) => userService.createUser(userData) // createUserFn **
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "Registration successful! You can now log in.",
+      data: { email: newUser.email, name: newUser.name },
+    });
+  } catch (error) {
+    return res.status(error.code || 500).json({
+      success: false,
+      err: error.err || error.message,
+    });
+  }
+};
+
+const resendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, err: "Email is required." });
+    }
+//// pending data from schema
+    const OtpVerification = require('../models/otpVerification.model');
+    const existing = await OtpVerification.findOne({ email });
+    if (!existing) {
+      return res.status(404).json({ success: false, err: "No pending registration found for this email." });
+    }
+
+    await otpService.sendOtp(existing.pendingUserData);
+
+    return res.status(200).json({
+      success: true,
+      message: "New OTP sent successfully.",
+      data: {},
+    });
+  } catch (error) {
+    return res.status(error.code || 500).json({
+      success: false,
+      err: error.err || error.message,
+    });
+  }
+};
+
 
 const signin = async(req,res) => {
     try {
@@ -105,5 +169,7 @@ module.exports = {
     signup,
     signin,
     signout,
+    verifyOtp,
+    resendOtp,
     getCurrentUser,
 };

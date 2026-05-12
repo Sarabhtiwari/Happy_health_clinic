@@ -27,6 +27,12 @@ const UserSchema = new mongoose.Schema(
       required: true,
       enum: ["ADMIN", "PATIENT", "DOCTOR"],
     },
+    mob_no: {
+      type: String,
+      required: true,
+      match: [/^\d{10}$/, "Please enter a valid 10-digit mobile number"],
+      trim: true,
+    },
   },
   { timestamps: true },
 );

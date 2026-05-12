@@ -30,9 +30,8 @@ const Services = () => {
       }
     };
     fetchServices();
-  }, []); // Runs only once on mount — services are public
-
-  // ── FETCH BOOKINGS (only when isAuthenticated becomes true) ──
+  }, []); 
+  
   useEffect(() => {
     if (!isAuthenticated) {
       // User logged out or not yet verified — clear the map
