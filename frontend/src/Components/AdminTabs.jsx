@@ -19,6 +19,7 @@ const AddDoctorModal = ({ onClose }) => {
     name: "",
     email: "",
     password: "",
+    mob_no: "", // Added mobile number here
     fees: "",
     description: "",
     qualification: "",
@@ -88,7 +89,16 @@ const AddDoctorModal = ({ onClose }) => {
               name="password"
               placeholder="Temporary Password"
               onChange={handleChange}
-              className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none md:col-span-2"
+              className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+            {/* Added mobile number input */}
+            <input
+              required
+              type="text"
+              name="mob_no"
+              placeholder="Mobile Number"
+              onChange={handleChange}
+              className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
         </div>
