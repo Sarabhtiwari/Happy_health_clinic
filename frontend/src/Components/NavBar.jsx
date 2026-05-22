@@ -13,32 +13,15 @@ const Navbar = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
+    // Listen to window scroll to trigger the background change
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
 
     const storedTheme = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const startDark = storedTheme === "dark" || (!storedTheme && prefersDark);
     setIsDarkMode(startDark);
     document.documentElement.classList.toggle("dark", startDark);
-
-    // const fetchAuthStatus = async () => {
-    //   try {
-    //     const res = await api.get("/auth/me");
-
-    //     if (res.data?.success) {
-    //       setIsLoggedIn(true);
-    //     } else {
-    //       setIsLoggedIn(false);
-    //     }
-    //   } catch (err) {
-    //     setIsLoggedIn(false);
-    //   }
-    // };
-
-    // fetchAuthStatus();
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, [location.pathname]);
@@ -68,196 +51,170 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
     { name: "Doctors", path: "/doctors" },
-    { name: "Lab", path: "/lab" },
     { name: "Contact", path: "/contact" },
   ];
 
-  const activeClass = "text-blue-600 border-b-2 border-blue-600";
-  const idleClass = "text-gray-600 hover:text-blue-600 transition-colors";
-
   return (
-    <header
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled || isMenuOpen ? "bg-white shadow-sm py-3" : "bg-transparent py-5"}`}
-    >
-      <div className="container mx-auto px-6 flex items-center justify-between">
-        {/* Logo */}
-        <div
-          className="flex items-center gap-2 cursor-pointer z-50"
-          onClick={() => {
-            navigate("/");
-            setIsMenuOpen(false);
-          }}
-        >
-          <span className="text-2xl font-serif font-bold text-blue-600">
-            Happy Health
-          </span>
-          <span className="hidden sm:inline-block text-sm text-gray-400 border-l border-gray-200 pl-3">
-            Clinic
-          </span>
-        </div>
-
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-          {navLinks.map((link) => (
-            <button
-              key={link.name}
-              onClick={() => navigate(link.path)}
-              className={
-                location.pathname === link.path ? activeClass : idleClass
-              }
-            >
-              {link.name}
-            </button>
-          ))}
-        </nav>
-
-        {/* Auth & Hamburger */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={toggleTheme}
-            className="hidden md:inline-flex p-2 rounded-full bg-slate-100 text-slate-900 hover:bg-slate-200 transition-all dark:bg-slate-800 dark:text-slate-100"
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 w-full z-[100] transition-all duration-300 ${
+          isScrolled || isMenuOpen
+            ? "bg-white dark:bg-[#0A111E] shadow-md border-b border-stone-200 dark:border-stone-800 py-3"
+            : "bg-white/90 dark:bg-[#0A111E]/90 backdrop-blur-md border-b border-transparent py-5"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
+          
+          {/* LOGO */}
+          <div
+            className="flex items-center gap-3 cursor-pointer z-50 group"
+            onClick={() => {
+              navigate("/");
+              setIsMenuOpen(false);
+            }}
           >
-            {isDarkMode ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                className="w-5 h-5"
-                fill="currentColor"
-              >
-                <path d="M21.752 15.002A9.718 9.718 0 0112 21.75 9.75 9.75 0 1121.75 12c0 1.148-.206 2.25-.598 3.252z" />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                className="w-5 h-5"
-                fill="currentColor"
-              >
-                <path d="M12 4.75a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V5.5A.75.75 0 0112 4.75zm0 12.5a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zm7.25-6a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75zM6 12.5a.75.75 0 01-.75.75H3.75a.75.75 0 010-1.5h1.5A.75.75 0 016 12.5zm10.72-4.78a.75.75 0 01.53 1.28l-1.06 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 01.53-.16zm-9.94 9.94a.75.75 0 01.53 1.28l-1.06 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 01.53-.16zM17.28 17.28a.75.75 0 01-1.06 0l-1.06-1.06a.75.75 0 111.06-1.06l1.06 1.06a.75.75 0 010 1.06zM7.78 6.78a.75.75 0 01-1.06 0L5.66 5.72a.75.75 0 111.06-1.06l1.06 1.06a.75.75 0 010 1.06zM12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" />
-              </svg>
-            )}
-          </button>
+            <div className="w-11 h-11 bg-gradient-to-br from-stone-800 to-stone-950 dark:from-stone-100 dark:to-stone-300 rounded-xl flex items-center justify-center text-white dark:text-[#0A111E] font-serif text-2xl font-bold shadow-md group-hover:shadow-lg group-hover:-translate-y-0.5 transition-all duration-300">
+              H
+            </div>
+            <div className="flex flex-col justify-center">
+              <span className="text-xl font-serif font-bold text-stone-900 dark:text-white tracking-wide leading-tight">
+                Happy Health
+              </span>
+              <span className="text-[9px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400 font-bold mt-0.5">
+                Skin Hair Laser Clinic
+              </span>
+            </div>
+          </div>
 
-          <div className="hidden md:flex gap-3">
+          {/* DESKTOP NAV */}
+          <nav className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <button
+                key={link.name}
+                onClick={() => navigate(link.path)}
+                className={`relative px-1 py-2 text-sm font-semibold tracking-wide transition-colors group ${
+                  location.pathname === link.path
+                    ? "text-stone-900 dark:text-white"
+                    : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
+                }`}
+              >
+                {link.name}
+                {/* Animated Underline */}
+                <span
+                  className={`absolute bottom-0 left-0 w-full h-[2px] rounded-full bg-stone-900 dark:bg-white transition-transform duration-300 origin-left ${
+                    location.pathname === link.path
+                      ? "scale-x-100"
+                      : "scale-x-0 group-hover:scale-x-100"
+                  }`}
+                />
+              </button>
+            ))}
+          </nav>
+
+          {/* ACTIONS */}
+          <div className="flex items-center gap-4 z-50">
+            {/* Theme Toggle */}
+            <button 
+              onClick={toggleTheme} 
+              className="p-2 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-white dark:hover:bg-white/10 transition-all duration-300"
+              aria-label="Toggle Theme"
+            >
+              <span className="text-lg leading-none block">{isDarkMode ? "☼" : "☾"}</span>
+            </button>
+
+            <div className="hidden md:flex items-center gap-4 border-l border-stone-200 dark:border-white/10 pl-4">
+              {isLoggedIn ? (
+                <>
+                  <button
+                    onClick={() => navigate("/my-appointments")}
+                    className="text-sm font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors"
+                  >
+                    Appointments
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="px-5 py-2 rounded-full border border-stone-200 dark:border-stone-700 hover:border-stone-900 dark:hover:border-white text-stone-900 dark:text-white text-sm font-semibold hover:bg-stone-900 hover:text-white dark:hover:bg-white dark:hover:text-[#0A111E] transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="text-sm font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => navigate("/signup")}
+                    className="px-6 py-2.5 bg-stone-900 dark:bg-white text-white dark:text-[#0A111E] text-sm font-semibold rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                  >
+                    Book Now
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* MOBILE MENU TOGGLE */}
+            <button 
+              className="md:hidden p-2 -mr-2 text-stone-900 dark:text-white rounded-full hover:bg-stone-100 dark:hover:bg-white/10 transition-colors" 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7h16M4 12h16M4 17h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* MOBILE MENU */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-[90] bg-white dark:bg-[#0A111E] pt-28 px-6 md:hidden flex flex-col animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="flex flex-col gap-2">
+            {navLinks.map((link) => (
+              <button
+                key={link.name}
+                onClick={() => { navigate(link.path); setIsMenuOpen(false); }}
+                className={`text-left text-2xl font-serif py-4 border-b border-stone-200 dark:border-stone-800 transition-all ${
+                  location.pathname === link.path 
+                    ? "text-stone-900 dark:text-white pl-2 border-stone-900 dark:border-white" 
+                    : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:pl-2"
+                }`}
+              >
+                {link.name}
+              </button>
+            ))}
+          </div>
+          <div className="mt-auto pb-12 pt-6 flex flex-col gap-3">
             {isLoggedIn ? (
               <>
-                <button
-                  onClick={() => navigate("/my-appointments")}
-                  className="px-5 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-semibold hover:bg-blue-100 transition-all"
-                >
+                <button onClick={() => { navigate("/my-appointments"); setIsMenuOpen(false); }} className="w-full py-4 bg-stone-100 dark:bg-white/5 hover:bg-stone-200 dark:hover:bg-white/10 text-stone-900 dark:text-white transition-colors rounded-2xl font-semibold">
                   My Appointments
                 </button>
-
-                <button
-                  onClick={handleLogout}
-                  className="px-5 py-2 bg-red-50 text-red-600 rounded-full text-sm font-semibold hover:bg-red-100 transition-all"
-                >
+                <button onClick={handleLogout} className="w-full py-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors rounded-2xl font-semibold">
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <button
-                  onClick={() => navigate("/login")}
-                  className="px-5 py-2 text-gray-600 text-sm font-semibold"
-                >
-                  Login
+                <button onClick={() => { navigate("/signup"); setIsMenuOpen(false); }} className="w-full py-4 bg-stone-900 dark:bg-white text-white dark:text-[#0A111E] rounded-2xl font-semibold shadow-lg active:scale-[0.98] transition-transform">
+                  Sign Up / Book Now
                 </button>
-                <button
-                  onClick={() => navigate("/signup")}
-                  className="px-5 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all"
-                >
-                  Sign Up
+                <button onClick={() => { navigate("/login"); setIsMenuOpen(false); }} className="w-full py-4 border-2 border-stone-200 dark:border-white/20 text-stone-900 dark:text-white rounded-2xl font-semibold hover:border-stone-900 dark:hover:border-white transition-colors active:scale-[0.98]">
+                  Login
                 </button>
               </>
             )}
           </div>
-
-          <button
-            className="md:hidden p-2 text-gray-600 z-50"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <svg
-              className="w-7 h-7"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {isMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-100 flex flex-col p-6 gap-4 shadow-xl dark:bg-slate-950 dark:border-slate-800">
-          {navLinks.map((link) => (
-            <button
-              key={link.name}
-              onClick={() => {
-                navigate(link.path);
-                setIsMenuOpen(false);
-              }}
-              className="text-left text-lg font-medium text-gray-700 dark:text-slate-100"
-            >
-              {link.name}
-            </button>
-          ))}
-          <button
-            onClick={toggleTheme}
-            className="w-full py-3 bg-slate-100 text-slate-900 rounded-xl font-bold hover:bg-slate-200 transition-all dark:bg-slate-800 dark:text-slate-100"
-          >
-            {isDarkMode ? "Switch to Light" : "Switch to Dark"}
-          </button>
-          <hr className="border-gray-200 dark:border-slate-700" />
-          {isLoggedIn ? (
-            <>
-              <button
-                onClick={() => {
-                  navigate("/my-appointments");
-                  setIsMenuOpen(false);
-                }}
-                className="w-full py-3 bg-blue-50 text-blue-600 rounded-xl font-bold"
-              >
-                My Appointments
-              </button>
-
-              <button
-                onClick={handleLogout}
-                className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold dark:bg-red-900 dark:text-red-300"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => {
-                navigate("/signup");
-                setIsMenuOpen(false);
-              }}
-              className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all"
-            >
-              Sign Up
-            </button>
-          )}
         </div>
       )}
-    </header>
+    </>
   );
 };
 

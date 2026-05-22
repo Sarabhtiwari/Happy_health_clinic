@@ -41,14 +41,14 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="font-bold text-gray-900 mb-2 text-xl font-serif">Main Clinic</h4>
-                    <p className="text-gray-500 text-lg leading-relaxed">
-                      123 Medical Boulevard, Health City<br/>
+                    <p className="text-gray-500 text-lg leading-relaxed">Anamnagar, Ghattekulo
+                      <br/>
                       Kathmandu, Nepal
                     </p>
                   </div>
                 </div>
 
-                {/* Working Hours (Your Code Integrated) */}
+                {/* Working Hours */}
                 <div className="flex gap-5">
                   <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl h-fit">
                     <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" height="24" width="24">
@@ -58,13 +58,12 @@ const Contact = () => {
                   <div>
                     <h4 className="font-bold text-gray-900 mb-2 text-xl font-serif">Working Hours</h4>
                     <p className="text-gray-500 text-lg whitespace-pre-line leading-relaxed italic">
-                      Mon - Sat: 8:00 AM - 8:00 PM{"\n"}
-                      Sunday: Emergency Only
+                      Sun - Sat: 8:00 AM - 7:00 PM{"\n"}
                     </p>
                   </div>
                 </div>
 
-                {/* Quick Contact */}
+                {/* Quick Contact & Socials */}
                 <div className="flex gap-5">
                   <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl h-fit">
                     <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" height="28" width="28">
@@ -72,9 +71,20 @@ const Contact = () => {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-900 mb-2 text-xl font-serif">Phone & Email</h4>
-                    <p className="text-blue-600 text-lg font-semibold">9841329402</p>
-                    <p className="text-gray-500">contact@happyhealthclinic.com</p>
+                    <h4 className="font-bold text-gray-900 mb-2 text-xl font-serif">Contact & Socials</h4>
+                    <p className="text-blue-600 text-lg font-semibold">Mobile: 9860831099, 9768987950 </p>
+                    <p className="text-blue-600 text-lg font-semibold">Telephone: 01-5913099 </p> {/* Added Telephone placeholder */}
+                    <p className="text-gray-500 mb-4">happyhealthclinicpvt.ltd@gmail.com</p>
+
+                    {/* Social Media Section */}
+                    <div className="flex flex-col gap-2 pt-4 border-t border-gray-100">
+                      <p className="text-gray-500 text-lg">
+                        <strong className="text-gray-700 font-medium">Instagram:</strong> @happyhealth.clinic
+                      </p>
+                      <p className="text-gray-500 text-lg">
+                        <strong className="text-gray-700 font-medium">TikTok:</strong> @happyhealthclinic
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -82,8 +92,7 @@ const Contact = () => {
               {/* Bottom Support Text */}
               <div className="mt-10 p-6 bg-gray-50 rounded-3xl border border-dashed border-gray-200 text-center">
                 <p className="text-gray-400 text-sm">
-                  Facing a clinical emergency? <br />
-                  Call our 24/7 helpline for immediate assistance.
+                 
                 </p>
               </div>
             </div>
