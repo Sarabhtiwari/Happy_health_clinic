@@ -27,22 +27,20 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post("/auth/signin", {   //remove /hhc/api/v1  for local and keep it for production 
+      const response = await api.post("/auth/signin", {
         email: formData.email,
         password: formData.password,
       });
 
-      const userData = response.data.data; // { email: "...", name: "...", role: "ADMIN" }
+      const userData = response.data.data;
       const successMessage = response.data.message;
 
-      // 1. Format the user object to match what Zustand expects
       const formattedUser = {
         name: userData.name,
         email: userData.email,
-        userRole: userData.role, // map "role" to "userRole"
+        userRole: userData.role,
       };
 
-      // 2. Call setAuth to save into Zustand and LocalStorage
       setAuth(formattedUser);
 
       setStatus({
@@ -50,9 +48,8 @@ const Login = () => {
         message: successMessage || "Successfully logged in!",
       });
 
-      // 3. Fix the uppercase/lowercase check
       if (userData.role === "ADMIN") {
-        navigate("/admin"); // Or '/admin-dashboard' depending on your route setup
+        navigate("/admin");
       } else {
         navigate("/");
       }
@@ -67,23 +64,25 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-md border border-gray-100">
+    // Changed bg-gray-50 to bg-white
+    <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8 font-sans">
+      {/* Container is kept white with a subtle border for depth */}
+      <div className="max-w-md w-full bg-white p-8 rounded-2xl border border-stone-200 shadow-sm">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold text-gray-900">
+          <h2 className="text-3xl font-bold text-stone-900">
             Welcome Back
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-stone-500">
             Log in to your Happy Health Clinic account.
           </p>
         </div>
 
         {status.message && (
           <div
-            className={`mb-4 p-3 rounded text-sm font-medium text-center ${
+            className={`mb-4 p-3 rounded-lg text-sm font-medium text-center ${
               status.type === "error"
-                ? "bg-red-100 text-red-700"
-                : "bg-green-100 text-green-700"
+                ? "bg-red-50 text-red-700"
+                : "bg-green-50 text-green-700"
             }`}
           >
             {status.message}
@@ -92,10 +91,7 @@ const Login = () => {
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label
-              className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="email"
-            >
+            <label className="block text-sm font-semibold text-stone-700 mb-1" htmlFor="email">
               Email Address
             </label>
             <input
@@ -105,16 +101,13 @@ const Login = () => {
               required
               value={formData.email}
               onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors"
+              className="block w-full px-4 py-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900 transition-all"
               placeholder="john@example.com"
             />
           </div>
 
           <div>
-            <label
-              className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="password"
-            >
+            <label className="block text-sm font-semibold text-stone-700 mb-1" htmlFor="password">
               Password
             </label>
             <input
@@ -124,31 +117,26 @@ const Login = () => {
               required
               value={formData.password}
               onChange={handleChange}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors"
+              className="block w-full px-4 py-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-900 transition-all"
               placeholder="••••••••"
             />
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors ${
-                isLoading ? "opacity-70 cursor-not-allowed" : ""
-              }`}
-            >
-              {isLoading ? "Logging in..." : "Log In"}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-stone-900 hover:bg-stone-800 transition-all ${
+              isLoading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
+          >
+            {isLoading ? "Logging in..." : "Log In"}
+          </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-stone-600">
             Don't have an account?{" "}
-            <a
-              href="/signup"
-              className="font-medium text-green-600 hover:text-green-500 transition-colors"
-            >
+            <a href="/signup" className="font-bold text-stone-900 hover:underline">
               Sign up here
             </a>
           </p>

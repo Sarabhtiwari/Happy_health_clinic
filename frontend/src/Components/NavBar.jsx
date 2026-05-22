@@ -114,8 +114,8 @@ const Navbar = () => {
           {/* ACTIONS */}
           <div className="flex items-center gap-4 z-50">
             {/* Theme Toggle */}
-            <button 
-              onClick={toggleTheme} 
+            <button
+              onClick={toggleTheme}
               className="p-2 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-white dark:hover:bg-white/10 transition-all duration-300"
               aria-label="Toggle Theme"
             >
@@ -157,8 +157,8 @@ const Navbar = () => {
             </div>
 
             {/* MOBILE MENU TOGGLE */}
-            <button 
-              className="md:hidden p-2 -mr-2 text-stone-900 dark:text-white rounded-full hover:bg-stone-100 dark:hover:bg-white/10 transition-colors" 
+            <button
+              className="md:hidden p-2 -mr-2 text-stone-900 dark:text-white rounded-full hover:bg-stone-100 dark:hover:bg-white/10 transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,8 +182,8 @@ const Navbar = () => {
                 key={link.name}
                 onClick={() => { navigate(link.path); setIsMenuOpen(false); }}
                 className={`text-left text-2xl font-serif py-4 border-b border-stone-200 dark:border-stone-800 transition-all ${
-                  location.pathname === link.path 
-                    ? "text-stone-900 dark:text-white pl-2 border-stone-900 dark:border-white" 
+                  location.pathname === link.path
+                    ? "text-stone-900 dark:text-white pl-2 border-stone-900 dark:border-white"
                     : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:pl-2"
                 }`}
               >

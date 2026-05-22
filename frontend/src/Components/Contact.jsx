@@ -1,10 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import Navbar from '../components/Navbar'; // Adjust this path if your Navbar is elsewhere
 
 const Contact = () => {
   return (
-    <div className="min-h-screen bg-[#FDFDFD] pt-32 pb-20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#FDFDFD]">
+      {/* Navbar added here */}
+      <Navbar />
+
+      {/* Main Content with top padding to account for fixed navbar */}
+      <div className="pt-32 pb-20 container mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* --- HEADER --- */}
         <motion.div 
@@ -73,7 +78,7 @@ const Contact = () => {
                   <div>
                     <h4 className="font-bold text-gray-900 mb-2 text-xl font-serif">Contact & Socials</h4>
                     <p className="text-blue-600 text-lg font-semibold">Mobile: 9860831099, 9768987950 </p>
-                    <p className="text-blue-600 text-lg font-semibold">Telephone: 01-5913099 </p> {/* Added Telephone placeholder */}
+                    <p className="text-blue-600 text-lg font-semibold">Telephone: 01-5913099 </p>
                     <p className="text-gray-500 mb-4">happyhealthclinicpvt.ltd@gmail.com</p>
 
                     {/* Social Media Section */}
@@ -87,13 +92,6 @@ const Contact = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Bottom Support Text */}
-              <div className="mt-10 p-6 bg-gray-50 rounded-3xl border border-dashed border-gray-200 text-center">
-                <p className="text-gray-400 text-sm">
-                 
-                </p>
               </div>
             </div>
           </motion.div>
