@@ -19,7 +19,7 @@ const AddDoctorModal = ({ onClose }) => {
     name: "",
     email: "",
     password: "",
-    mob_no: "", // Added mobile number here
+    mob_no: "", 
     fees: "",
     description: "",
     qualification: "",
@@ -52,10 +52,14 @@ const AddDoctorModal = ({ onClose }) => {
         ...formData,
         fees: Number(formData.fees),
         maxAppointmentsPerDay: Number(formData.maxAppointmentsPerDay),
+        workingHours: {
+          start: formData.startTime,
+          end: formData.endTime
+        }
       });
-      onClose(); // Close modal on success
+      onClose(); 
     } catch (error) {
-      setLoading(false); // Let the store handle the main error banner
+      setLoading(false); 
     }
   };
 

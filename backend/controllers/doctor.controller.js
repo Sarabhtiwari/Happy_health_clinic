@@ -11,6 +11,7 @@ const createDocs = async (req, res) => {
       name,
       email,
       password,
+      mob_no,
       fees,
       description,
       qualification,
@@ -23,6 +24,7 @@ const createDocs = async (req, res) => {
       name,
       email,
       password,
+      mob_no,
       userRole: "DOCTOR",
     });
 
