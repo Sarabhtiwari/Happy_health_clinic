@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import Navbar from '../components/Navbar'; // Adjust this path if your Navbar is elsewhere
+import Navbar from '../Components/NavBar'; 
 
 const Contact = () => {
   return (
