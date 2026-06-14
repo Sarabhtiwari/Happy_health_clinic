@@ -18,35 +18,17 @@ const validateAppointmentRequest = async (req, res, next) => {
     if (!existingDoctor) {
       errors.doctorId = "Doctor not found";
     } else {
-      // Check doctor is available on the selected day
       if (appointmentDate) {
         const selectedDay = DAY_MAP[new Date(appointmentDate).getDay()];
         if (!existingDoctor.availableDays.includes(selectedDay)) {
           errors.appointmentDate = `Doctor is not available on ${selectedDay}. Available: ${existingDoctor.availableDays.join(", ")}`;
         }
       }
-
-      // Check maxAppointmentsPerDay not exceeded
-      if (appointmentDate && !errors.appointmentDate) {
-        const startOfDay = new Date(appointmentDate);
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(appointmentDate);
-        endOfDay.setHours(23, 59, 59, 999);
-
-        const todayCount = await Appointment.countDocuments({
-          doctor: req.params.doctorId,
-          dateOfAppointment: { $gte: startOfDay, $lte: endOfDay },
-          paymentStatus: { $ne: "FAILED" },
-        });
-
-        if (todayCount >= existingDoctor.maxAppointmentsPerDay) {
-          errors.appointmentDate = `Doctor is fully booked on ${appointmentDate}. Please choose another date.`;
-        }
-      }
+      // REMOVED: The flawed countDocuments check is entirely gone.
     }
   }
 
-  // Date validation
+  // Date validation remains exactly the same
   if (!appointmentDate) {
     errors.appointmentDate = errors.appointmentDate || "Appointment date is required";
   } else if (isNaN(Date.parse(appointmentDate))) {
@@ -64,7 +46,6 @@ const validateAppointmentRequest = async (req, res, next) => {
     errorResponseBody.message = "Validation failed";
     return res.status(400).json(errorResponseBody);
   }
-
   next();
 };
 

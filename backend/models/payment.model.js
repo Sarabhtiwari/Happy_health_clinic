@@ -12,7 +12,8 @@ const PaymentSchema = new mongoose.Schema({
     appointment: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Appointment",
-        required: true
+        required: true,
+        index: true
     },
 
     // The user (patient) who made the payment
@@ -34,7 +35,8 @@ const PaymentSchema = new mongoose.Schema({
     // Required only after initiation (not at document creation time).
     pidx: {
         type: String,
-        default: null
+        default: null,
+        index: true
     },
 
     // Khalti's own transaction ID — provided after successful payment verification.

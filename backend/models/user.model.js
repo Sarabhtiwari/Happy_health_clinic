@@ -26,6 +26,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: ["ADMIN", "PATIENT", "DOCTOR"],
+      index: true
     },
     mob_no: {
       type: String,

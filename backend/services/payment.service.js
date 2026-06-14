@@ -2,6 +2,7 @@ const axios = require('axios');
 const Payment = require('../models/payment.model');
 const Appointment = require('../models/appointment.model');
 const Doctor = require('../models/doctor.model');
+const DailySchedule = require('../models/dailySchedule.model'); // <-- NEW IMPORT
 
 // ─── KHALTI CONFIG ───────────────────────────────────────────────────────────
 // Khalti provides two environments:
@@ -21,20 +22,11 @@ if (!KHALTI_SECRET_KEY) {
 }
 
 // ─── INITIATE PAYMENT ─────────────────────────────────────────────────────────
-// Step 1 of Khalti's 2-step flow.
-// Creates a Khalti payment session and returns a `payment_url` to redirect the user to.
-// Also creates a Payment document in our DB with status = 'INITIATED'.
-//
-// @param {string} appointmentId  - our Appointment ObjectId
-// @param {string} userId         - our User ObjectId (the patient paying)
-// @returns {object}              - { paymentUrl, pidx, paymentId }
-// ─────────────────────────────────────────────────────────────────────────────
 const initiatePayment = async (appointmentId, userId) => {
     try {
         // 1. Fetch the appointment with doctor info to get the fee
         const appointment = await Appointment.findById(appointmentId).populate('doctor');
         if (!appointment) {
-            // console.log("Appointment not found");
             throw { err: "Appointment not found", code: 404 };
         }
 
@@ -44,10 +36,8 @@ const initiatePayment = async (appointmentId, userId) => {
         }
 
         // 3. Get fee from the doctor (stored in NPR in Doctor model)
-        //    Convert to paisa for Khalti (NPR × 100)
         const doctor = appointment.doctor;
         if (!doctor || doctor.fees == null) {
-            // console.log("Doctor not found");
             throw { err: "Doctor fee information not found", code: 404 };
         }
 
@@ -57,9 +47,7 @@ const initiatePayment = async (appointmentId, userId) => {
             throw { err: "Amount must be at least NPR 10 (1000 paisa)", code: 400 };
         }
 
-        // 4. Build the return URL — Khalti redirects here after payment attempt
-        //    This must be a publicly accessible URL in production.
-        //    In dev, use ngrok or similar.
+        // 4. Build the return URL
         const MY_SERVER_URL = process.env.MY_SERVER_URL || "http://localhost:5000";
         const returnUrl = `${MY_SERVER_URL}/hhc/api/v1/payment/verify`;
 
@@ -69,14 +57,11 @@ const initiatePayment = async (appointmentId, userId) => {
             {
                 return_url: returnUrl,
                 website_url: MY_SERVER_URL,
-                amount: amountInPaisa,         // in paisa
+                amount: amountInPaisa,         
                 purchase_order_id: appointmentId.toString(),
                 purchase_order_name: `Appointment ${appointment._id.toString().slice(-6).toUpperCase()}`,
                 customer_info: {
-                    // NOTE: We only have userId here. For richer customer info,
-                    // populate user before this call.
                     name: "Patient",
-                    // email and phone are optional but recommended for Khalti records
                 }
             },
             {
@@ -93,7 +78,7 @@ const initiatePayment = async (appointmentId, userId) => {
         const payment = await Payment.create({
             appointment: appointmentId,
             user: userId,
-            amount: amountInPaisa,    // stored in paisa
+            amount: amountInPaisa,
             pidx: pidx,
             status: 'INITIATED',
             khaltiPaymentUrl: payment_url
@@ -105,13 +90,12 @@ const initiatePayment = async (appointmentId, userId) => {
         });
 
         return {
-            paymentUrl: payment_url,   // frontend redirects user here
+            paymentUrl: payment_url,   
             pidx: pidx,
             paymentId: payment._id
         };
 
     } catch (error) {
-        // Khalti API errors have response.data with details
         if (error.response) {
             console.error("Khalti initiate error:", error.response.data);
             throw {
@@ -124,19 +108,9 @@ const initiatePayment = async (appointmentId, userId) => {
 };
 
 // ─── VERIFY PAYMENT ───────────────────────────────────────────────────────────
-// Step 2 of Khalti's 2-step flow.
-// Called when Khalti redirects the user back to our return_url.
-// Khalti appends `pidx`, `status`, `transaction_id`, etc. as query params.
-//
-// We call Khalti's lookup endpoint to VERIFY the payment server-side
-// (never trust only the redirect params — always verify with Khalti API).
-//
-// @param {string} pidx  - the pidx from Khalti's redirect query params
-// @returns {object}     - { appointment, payment }
-// ─────────────────────────────────────────────────────────────────────────────
 const verifyPayment = async (pidx) => {
     try {
-        // 1. Call Khalti lookup API — this is the authoritative verification
+        // 1. Call Khalti lookup API
         const khaltiResponse = await axios.post(
             `${KHALTI_BASE_URL}/epayment/lookup/`,
             { pidx },
@@ -162,18 +136,39 @@ const verifyPayment = async (pidx) => {
             return { appointment, payment };
         }
 
-        // 4. Verify the amount matches (prevent tampering)
-        //    Khalti returns total_amount in paisa — same unit as our stored amount
-        if (total_amount !== payment.amount) {
+        // ─── HELPER FUNCTION: HANDLE PAYMENT FAILURE & RELEASE SLOT ───
+        const handleFailureAndReleaseSlot = async (errorMessage) => {
+            // Update payment to failed
             await Payment.findByIdAndUpdate(payment._id, { status: 'FAILED' });
-            await Appointment.findByIdAndUpdate(payment.appointment, {
-                paymentStatus: 'FAILED'
-            });
-            throw { err: "Amount mismatch — payment verification failed", code: 400 };
+            
+            // Update appointment to failed and return the document
+            const failedAppt = await Appointment.findByIdAndUpdate(
+                payment.appointment, 
+                { paymentStatus: 'FAILED' },
+                { new: true }
+            );
+
+            // Give the slot back to the doctor's daily capacity
+            if (failedAppt) {
+                const normalizedDate = new Date(failedAppt.dateOfAppointment);
+                normalizedDate.setHours(0, 0, 0, 0);
+
+                await DailySchedule.findOneAndUpdate(
+                    { doctor: failedAppt.doctor, date: normalizedDate },
+                    { $inc: { bookedCount: -1 } } 
+                );
+            }
+
+            throw { err: errorMessage, code: 400 };
+        };
+        // ──────────────────────────────────────────────────────────────
+
+        // 4. Verify the amount matches (prevent tampering)
+        if (total_amount !== payment.amount) {
+            await handleFailureAndReleaseSlot("Amount mismatch — payment verification failed");
         }
 
         // 5. Map Khalti status to our status
-        //    Khalti statuses: Completed, Pending, Initiated, Refunded, Expired, User canceled, Failed
         if (status === 'Completed') {
             // Payment succeeded
             await Payment.findByIdAndUpdate(payment._id, {
@@ -193,15 +188,8 @@ const verifyPayment = async (pidx) => {
             };
 
         } else {
-            // Any other Khalti status is treated as failed on our end
-            await Payment.findByIdAndUpdate(payment._id, { status: 'FAILED' });
-            await Appointment.findByIdAndUpdate(payment.appointment, {
-                paymentStatus: 'FAILED'
-            });
-            throw {
-                err: `Payment not completed. Khalti status: ${status}`,
-                code: 400
-            };
+            // Any other Khalti status (User canceled, Expired, Failed)
+            await handleFailureAndReleaseSlot(`Payment not completed. Khalti status: ${status}`);
         }
 
     } catch (error) {
@@ -217,9 +205,6 @@ const verifyPayment = async (pidx) => {
 };
 
 // ─── GET PAYMENT BY APPOINTMENT ──────────────────────────────────────────────
-// Fetch payment details for a given appointment ID.
-// Useful for admin dashboards or patient payment history.
-// ─────────────────────────────────────────────────────────────────────────────
 const getPaymentByAppointment = async (appointmentId) => {
     try {
         const payment = await Payment.findOne({ appointment: appointmentId })

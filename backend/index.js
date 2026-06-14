@@ -2,7 +2,6 @@ const express = require("express");
 const env = require("dotenv");
 
 env.config();
-
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -15,6 +14,7 @@ const paymentRoutes = require("./routes/payment.route");
 const adminRoutes = require("./routes/admin.route");
 const serviceRoutes = require("./routes/services.route");
 const serviceAppointmentRoutes = require("./routes/serviceAppointment.route");
+require('./utils/cronJobs'); 
 
 const app = express();
 

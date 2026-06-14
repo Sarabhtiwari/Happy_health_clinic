@@ -6,6 +6,7 @@ const DoctorSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true 
     },
     // NOTE FOR PAYMENT INTEGRATION:
     // This `fees` field is in RUPEES (e.g., 500 means ₹500).

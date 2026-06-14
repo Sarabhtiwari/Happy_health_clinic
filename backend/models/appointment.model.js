@@ -6,11 +6,13 @@ const AppointmentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true 
     },
     doctor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Doctor",
       required: true,
+      index: true
     },
     paymentStatus: {
       type: String,
@@ -20,6 +22,7 @@ const AppointmentSchema = new mongoose.Schema(
     dateOfAppointment: {
       type: Date,
       required: true,
+      index: true
     },
     payment: {
       type: mongoose.Schema.Types.ObjectId,

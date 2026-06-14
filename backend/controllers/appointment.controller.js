@@ -53,7 +53,7 @@ const getAllAppointments = async (req, res) => {
 
 const fetchAppointmentById = async (req, res) => {
   try {
-    const response = await appointmentService.getAppointmentById(
+    const response = await appointmentService.fetchAppointmentById(
       req.params.appointmentId,
     );
     successResponseBody.data = response;

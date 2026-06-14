@@ -22,16 +22,24 @@ const initiatePayment = async (req, res) => {
             paymentId: result.paymentId
         };
         return res.status(200).json(successResponseBody);
-
-    } catch (error) {
-        console.error("initiatePayment controller error:", error);
-        if (error.err) {
-            errorResponseBody.err = error.err;
-            return res.status(error.code).json(errorResponseBody);
-        }
-        errorResponseBody.err = error;
-        return res.status(500).json(errorResponseBody);
     }
+    // } catch (error) {
+    //     console.error("initiatePayment controller error:", error);
+    //     if (error.err) {
+    //         errorResponseBody.err = error.err;
+    //         return res.status(error.code).json(errorResponseBody);
+    //     }
+    //     errorResponseBody.err = error;
+        catch (error) {
+    console.log("========== ERROR ==========");
+    console.log(error);
+    console.log(error.stack);
+    console.log("==========================");
+
+    return res.status(500).json(error);
+}
+    //     return res.status(500).json(errorResponseBody);
+    // }
 };
 
 // ─── VERIFY PAYMENT ───────────────────────────────────────────────────────────
