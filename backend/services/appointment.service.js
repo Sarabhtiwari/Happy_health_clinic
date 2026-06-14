@@ -67,37 +67,102 @@ const createAppointment = async (data) => {
 
 const getAppointments = async (data) => {
   try {
-    let query = {};
+    const pipeline = [];
 
+    // -------------------------------------------------------------
+    // STAGE 1: Early Match (Module 1)
+    // Filter the appointments natively first to reduce the stream size
+    // -------------------------------------------------------------
+    const initialMatch = {};
     if (data?.paymentStatus) {
-      query.paymentStatus = data.paymentStatus;
+      initialMatch.paymentStatus = data.paymentStatus;
+    }
+    
+    // Only push the $match stage if there is actually something to filter
+    if (Object.keys(initialMatch).length > 0) {
+      pipeline.push({ $match: initialMatch });
     }
 
-    if (data?.userName || data?.email || data?.mob_no) {
-      let userQuery = {};
-
-      if (data?.userName) {
-        userQuery.name = { $regex: data.userName, $options: "i" };
+    // -------------------------------------------------------------
+    // STAGE 2 & 3: The User Join & Unwind (Modules 7 & 3)
+    // -------------------------------------------------------------
+    pipeline.push(
+      {
+        $lookup: {
+          from: "users",          // The actual MongoDB collection name
+          localField: "user",     // The field in Appointment
+          foreignField: "_id",    // The field in User
+          as: "user"
+        }
+      },
+      {
+        // Unwind to fix the "Array Return Trap" from $lookup
+        $unwind: { path: "$user", preserveNullAndEmptyArrays: true }
       }
+    );
 
-      if (data?.email) {
-        userQuery.email = { $regex: data.email, $options: "i" };
-      }
-
-      if (data?.mob_no) {
-        userQuery.mob_no = { $regex: data.mob_no, $options: "i" };
-      }
-
-      const users = await User.find(userQuery).select("_id");
-      query.user = { $in: users.map((u) => u._id) };
+    // -------------------------------------------------------------
+    // STAGE 4: Dynamic User Search (Module 1 applied post-join)
+    // If they typed a name/email, we filter the stream NOW, after the join
+    // -------------------------------------------------------------
+    const userMatch = {};
+    if (data?.userName) {
+      userMatch["user.name"] = { $regex: data.userName, $options: "i" };
+    }
+    if (data?.email) {
+      userMatch["user.email"] = { $regex: data.email, $options: "i" };
+    }
+    if (data?.mob_no) {
+      userMatch["user.mob_no"] = { $regex: data.mob_no, $options: "i" };
     }
 
-    const appointments = await Appointment.find(query)
-      .populate("user", "name email mob_no")
-      .populate("doctor")
-      .sort({ createdAt: -1 });
+    if (Object.keys(userMatch).length > 0) {
+      pipeline.push({ $match: userMatch });
+    }
 
+    // -------------------------------------------------------------
+    // STAGE 5 & 6: The Doctor Join
+    // -------------------------------------------------------------
+    pipeline.push(
+      {
+        $lookup: {
+          from: "doctors",       // The actual MongoDB collection name
+          localField: "doctor",
+          foreignField: "_id",
+          as: "doctor"
+        }
+      },
+      {
+        $unwind: { path: "$doctor", preserveNullAndEmptyArrays: true }
+      }
+    );
+
+    // -------------------------------------------------------------
+    // STAGE 7: Shape Shifting (Module 2)
+    // Replicating Mongoose's .populate("user", "name email mob_no")
+    // We overwrite the bulky user object with exactly what the frontend needs
+    // -------------------------------------------------------------
+    pipeline.push({
+      $set: {
+        user: {
+          _id: "$user._id",
+          name: "$user.name",
+          email: "$user.email",
+          mob_no: "$user.mob_no"
+        }
+        // You can do the same for 'doctor' here if you want to hide their private data!
+      }
+    });
+
+    // -------------------------------------------------------------
+    // STAGE 8: Sort (Module 1)
+    // -------------------------------------------------------------
+    pipeline.push({ $sort: { createdAt: -1 } });
+
+    // Execute the pipeline
+    const appointments = await Appointment.aggregate(pipeline);
     return appointments;
+
   } catch (error) {
     throw error;
   }
