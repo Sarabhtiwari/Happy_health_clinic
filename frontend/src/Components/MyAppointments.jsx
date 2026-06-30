@@ -150,7 +150,7 @@ const MyAppointments = () => {
                 </div>
 
                 {/* Button */}
-                {appointment.paymentStatus !== "PAID" && (
+                {/* {appointment.paymentStatus !== "PAID" && (
                   <button
                     onClick={() =>
                       navigate(`/payment/${appointment._id}`)
@@ -159,7 +159,7 @@ const MyAppointments = () => {
                   >
                     Complete Payment
                   </button>
-                )}
+                )} */}
               </div>
             ))}
           </div>

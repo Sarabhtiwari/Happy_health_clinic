@@ -16,6 +16,7 @@ import ProtectedAdminRoute from "./Components/ProtectedAdminRoute";
 import AdminDashboard from "./Components/AdminDashboard";
 import useAuthStore from "./zustand/UseAuthStore";
 import MyAppointments from "./Components/MyAppointments";
+import TemporaryAppointmentBooking from "./Components/TemporaryAppointmentBooking";
                   
 function App() {  
   return (
@@ -34,7 +35,7 @@ function App() {
           <Route path="/doctors" element={<DoctorsList />} />
           <Route
             path="/book-appointment/:doctorId"
-            element={<AppointmentBooking />}
+            element={<TemporaryAppointmentBooking />}
           />
           <Route path="/my-appointments" element={<MyAppointments />} />
           <Route path="/signup" element={<SignUp />} />
