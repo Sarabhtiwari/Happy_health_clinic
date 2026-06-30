@@ -2,13 +2,12 @@ const Service = require("../models/services.model");
 
 const createService = async (data) => {
   try {
-    const { title, desc, details, priceRange, image } = data;
+    const { title, desc, details, image } = data;
 
     const newService = await Service.create({
       title,
       desc,
       details,
-      priceRange,
       image,
     });
 

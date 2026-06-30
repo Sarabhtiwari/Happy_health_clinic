@@ -34,3 +34,4 @@ const validateCreateDoctorRequest = async (req, res, next) => {
 module.exports = {
   validateCreateDoctorRequest
 };
+
