@@ -95,7 +95,6 @@ const AddDoctorModal = ({ onClose }) => {
               onChange={handleChange}
               className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
             />
-            {/* Added mobile number input */}
             <input
               required
               type="text"
@@ -237,8 +236,7 @@ export const AppointmentsTab = () => {
     mob_no: "",
   });
 
- const loadAppointments = (updatedFilters = searchFilters, payment = paymentFilter) => {
-    // Pass as a single object so order doesn't matter at all
+  const loadAppointments = (updatedFilters = searchFilters, payment = paymentFilter) => {
     fetchAppointments({
       paymentStatus: payment,
       patientName: updatedFilters.patientName,
@@ -248,7 +246,6 @@ export const AppointmentsTab = () => {
     });
   };
 
-  // INITIAL LOAD: Fetch data when tab opens
   useEffect(() => {
     loadAppointments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -256,7 +253,7 @@ export const AppointmentsTab = () => {
 
   const handlePaymentChange = (status) => {
     setPaymentFilter(status);
-    loadAppointments(searchFilters, status); // Fetch on payment filter click
+    loadAppointments(searchFilters, status); 
   };
 
   const handleStatusChange = (id, status) => {
@@ -276,15 +273,17 @@ export const AppointmentsTab = () => {
     setConfirm(null);
   };
 
+  // FIX: Safely filter out Service Appointments so they don't mix in this table
+  const regularAppointments = appointments.filter(appt => !appt.service);
+
   return (
     <div>
       {/* SEARCH BAR */}
       <SearchBarForAdminAppointSearch
         onSearch={(filters) => {
-          setSearchFilters(filters); // Keep parent state in sync
+          setSearchFilters(filters); 
         }}
         onSearchClick={(filters) => {
-          // Trigger fetch ONLY when this button is clicked
           loadAppointments(filters, paymentFilter);
         }}
       />
@@ -323,18 +322,20 @@ export const AppointmentsTab = () => {
         <p className="text-sm text-gray-400 py-8 text-center">Loading...</p>
       )}
 
-      {!loading && appointments.length === 0 && (
+      {!loading && regularAppointments.length === 0 && (
         <p className="text-sm text-gray-400 py-8 text-center">
           No appointments found.
         </p>
       )}
 
-      {!loading && appointments.length > 0 && (
+      {!loading && regularAppointments.length > 0 && (
         <div className="overflow-x-auto rounded-2xl border border-gray-100">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-widest">
                 <th className="px-5 py-3 font-semibold">Patient</th>
+                {/* FIX: Added Mobile Number Column */}
+                <th className="px-5 py-3 font-semibold">Mobile</th>
                 <th className="px-5 py-3 font-semibold">Doctor</th>
                 <th className="px-5 py-3 font-semibold">Date</th>
                 <th className="px-5 py-3 font-semibold">Status</th>
@@ -342,13 +343,18 @@ export const AppointmentsTab = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {appointments.map((appt) => (
+              {regularAppointments.map((appt) => (
                 <tr key={appt._id} className="bg-white hover:bg-gray-50/60">
                   <td className="px-5 py-4 font-medium">
                     {appt.user?.name ?? "—"}
                   </td>
+                  {/* FIX: Added Mobile Number Value */}
+                  <td className="px-5 py-4 text-gray-500">
+                    {appt.user?.mob_no ?? "—"}
+                  </td>
+                  {/* FIX: Added safe fallback for Doctor Name */}
                   <td className="px-5 py-4">
-                    {appt.doctor?.user?.name ?? "—"}
+                    {appt.doctor?.user?.name || appt.doctor?.name || "—"}
                   </td>
                   <td className="px-5 py-4">
                     {appt.dateOfAppointment

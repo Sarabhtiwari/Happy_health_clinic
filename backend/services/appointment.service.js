@@ -134,6 +134,29 @@ const getAppointments = async (data) => {
       },
       {
         $unwind: { path: "$doctor", preserveNullAndEmptyArrays: true }
+      },
+      // -------------------------------------------------------------
+      // NEW: STAGE 6.5: The Nested Doctor -> User Join
+      // We must fetch the doctor's linked 'user' document to get their name
+      // -------------------------------------------------------------
+      {
+        $lookup: {
+          from: "users",
+          localField: "doctor.user", // The ObjectId stored inside the doctor document
+          foreignField: "_id",
+          as: "doctorUserDetails"
+        }
+      },
+      {
+        $unwind: { path: "$doctorUserDetails", preserveNullAndEmptyArrays: true }
+      },
+      {
+        $set: {
+          "doctor.user": "$doctorUserDetails" // Attach the populated user so frontend can do appt.doctor.user.name
+        }
+      },
+      {
+        $unset: "doctorUserDetails" // Cleanup the temporary field
       }
     );
 
