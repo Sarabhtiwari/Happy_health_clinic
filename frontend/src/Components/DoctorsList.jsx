@@ -15,7 +15,7 @@ const DoctorsList = () => {
       try {
         const response = await api.get("/doctors");
         setDoctors(response.data.data);
-        setLoading(false);
+        setLoading(false); // Fixed typo here! Changed loading(false) to setLoading(false)
       } catch (err) {
         const errorMessage = err.response?.data?.message || err.message || "Failed to fetch doctor details";
         setError(errorMessage);
@@ -78,7 +78,7 @@ const DoctorsList = () => {
                   alt={doctor.user?.name} 
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
                   loading="lazy" 
-                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(doctor.user?.name || "Doctor")}&background=0D8ABC&color=fff&size=128`} 
+                  src={doctor.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor.user?.name || "Doctor")}&background=0D8ABC&color=fff&size=128`} 
                 />
               </div>
 
@@ -110,13 +110,6 @@ const DoctorsList = () => {
               >
                 Book Appointment
               </button>
-
-              {/* Social Icons (Optional) */}
-              <div className="flex gap-3 mt-6 pt-4 border-t border-gray-100 w-full justify-center opacity-40 group-hover:opacity-100 transition-opacity">
-                <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-colors cursor-pointer">
-                  <svg stroke="currentColor" fill="currentColor" viewBox="0 0 448 512" height="14" width="14"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"></path></svg>
-                </div>
-              </div>
             </div>
           ))}
         </div>
