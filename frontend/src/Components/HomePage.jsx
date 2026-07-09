@@ -1,21 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./NavBar";
 import useAuthStore from "../zustand/UseAuthStore";
-import medicalDermatology from "../assets/medical_dermatology.png";
-import cosmeticEnhancements from "../assets/cosmetic.png";
-import laserTherapeutics from "../assets/laser.png";
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isAdmin } = useAuthStore();
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-24 text-gray-900 font-sans selection:bg-gray-900 selection:text-white transition-colors duration-300">
@@ -27,8 +17,8 @@ const HomePage = () => {
           Advanced Dermatology in Nepal
         </h4>
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-medium leading-tight text-gray-900 mb-8 max-w-4xl">
-          Healthy Skin, <br className="hidden md:block" />
-          <span className="italic text-gray-500">Confident You.</span>
+          Clear Skin, <br className="hidden md:block" />
+          <span className="italic text-gray-500">Unshakable You.</span>
         </h1>
         <p className="text-lg md:text-xl text-gray-600 max-w-2xl mb-12 font-light">
           Experience premium skincare with our state-of-the-art dermatology clinic and compassionate professionals.
@@ -63,7 +53,7 @@ const HomePage = () => {
       {/* --- HERO IMAGE BANNER --- */}
       <section className="max-w-[96%] mx-auto relative mb-24">
         <img
-          src="https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&q=80&w=2000"
+          src="https://res.cloudinary.com/dz3jyr4uy/image/upload/f_auto,q_auto/rejuvenating-facial-treatment_1_bsdqox"
           alt="Clinic Interior"
           className="w-full h-[60vh] object-cover rounded-3xl"
         />
@@ -71,63 +61,14 @@ const HomePage = () => {
         {/* STATS OVERLAY OVER IMAGE */}
         <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl bg-gray-900 p-8 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] grid grid-cols-2 md:grid-cols-4 gap-8 z-10">
           {[
-            { label: "Years of Trust", value: "7+" },
-            { label: "Expert Doctors", value: "7+" },
+            { label: "Years of Trust", value: "5+" },
+            { label: "Advanced Treatments", value: "15+" },
             { label: "Lives Touched", value: "25k+" },
             { label: "Availability", value: "7 Days" },
           ].map((stat, i) => (
             <div key={i} className="text-center">
               <h3 className="text-3xl md:text-4xl font-serif text-white mb-2">{stat.value}</h3>
               <p className="text-xs uppercase tracking-widest text-gray-300">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* --- MINIMALIST SERVICES SECTION --- */}
-      <section className="py-24 px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-gray-200 pb-8">
-          <div className="max-w-2xl">
-            <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-4">Curated Treatments</h2>
-            <p className="text-gray-600 font-light">Comprehensive solutions tailored to your unique skin biology.</p>
-          </div>
-          <button onClick={() => navigate("/services")} className="mt-6 md:mt-0 pb-1 border-b border-gray-900 text-gray-900 font-medium hover:text-gray-500 hover:border-gray-500 transition-colors">
-            Explore All Services
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {[
-            { 
-              title: "Medical Dermatology", 
-              desc: "Expert diagnosis and treatment for clinical skin conditions.",
-              image: medicalDermatology
-            },
-            { 
-              title: "Cosmetic Enhancements", 
-              desc: "Refine your natural beauty with advanced aesthetic procedures.",
-              image: cosmeticEnhancements
-            },
-            { 
-              title: "Laser Therapeutics", 
-              desc: "Precision light-based therapies for flawless skin texture.",
-              image: laserTherapeutics
-            }
-          ].map((service, i) => (
-            <div key={i} onClick={() => navigate("/services")} className="group cursor-pointer">
-              <div className="aspect-square rounded-2xl mb-6 overflow-hidden relative bg-gray-100">
-                <img 
-                  src={service.image} 
-                  alt={service.title} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute top-4 left-4 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm">
-                  <span className="text-lg font-serif text-gray-900">0{i+1}</span>
-                </div>
-              </div>
-              
-              <h3 className="text-2xl font-serif text-gray-900 mb-3 group-hover:text-gray-600 transition-colors">{service.title}</h3>
-              <p className="text-gray-500 font-light leading-relaxed">{service.desc}</p>
             </div>
           ))}
         </div>

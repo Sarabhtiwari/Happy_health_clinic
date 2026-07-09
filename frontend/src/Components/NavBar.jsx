@@ -73,9 +73,11 @@ const Navbar = () => {
               setIsMenuOpen(false);
             }}
           >
-            <div className="w-11 h-11 bg-gradient-to-br from-stone-800 to-stone-950 dark:from-stone-100 dark:to-stone-300 rounded-xl flex items-center justify-center text-white dark:text-[#0A111E] font-serif text-2xl font-bold shadow-md group-hover:shadow-lg group-hover:-translate-y-0.5 transition-all duration-300">
-              H
-            </div>
+            <img 
+              src="https://res.cloudinary.com/dz3jyr4uy/image/upload/f_auto,q_auto/hhc_1_i4laq5" 
+              alt="Happy Health Clinic Logo" 
+              className="w-11 h-11 object-contain group-hover:-translate-y-0.5 transition-all duration-300"
+            />
             <div className="flex flex-col justify-center">
               <span className="text-xl font-serif font-bold text-stone-900 dark:text-white tracking-wide leading-tight">
                 Happy Health
