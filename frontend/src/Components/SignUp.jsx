@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
+import Navbar from "./Navbar";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -113,200 +114,224 @@ const SignUp = () => {
     }, 1000);
   };
 
+  // Removed dark mode classes to match Login page styling
   const inputClass =
-    "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors";
+    "block w-full px-4 py-3 bg-transparent border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900 transition-all";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-md border border-gray-100">
-        {/* ── SCREEN 1: Registration Form ── */}
-        {screen === "form" && (
-          <>
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-extrabold text-gray-900">
-                Join Happy Health Clinic
-              </h2>
-              <p className="mt-2 text-sm text-gray-600">
-                Create an account to book and manage your appointments.
-              </p>
-            </div>
+    <>
+      <Navbar />
 
-            {status.message && (
-              <div
-                className={`mb-4 p-3 rounded text-sm font-medium ${status.type === "error" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}
-              >
-                {status.message}
+      {/* Removed dark mode classes from wrapper */}
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
+        <div className="max-w-md w-full bg-white p-8 rounded-2xl border border-stone-200 shadow-sm transition-colors duration-300">
+          
+          {/* ── SCREEN 1: Registration Form ── */}
+          {screen === "form" && (
+            <>
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-blue-600 transition-colors duration-300">
+  Join Happy Health Clinic
+</h2>
+                <p className="mt-2 text-sm text-stone-500 transition-colors duration-300">
+                  Create an account to book and manage your appointments.
+                </p>
               </div>
-            )}
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
-                </label>
-                <input
-                  name="name"
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="John Doe"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="john@example.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mobile Number
-                </label>
-                <input
-                  name="mob_no"
-                  type="tel"
-                  required
-                  value={formData.mob_no}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="9800000000"
-                  maxLength={10}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Password
-                </label>
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="••••••••"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirm Password
-                </label>
-                <input
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="••••••••"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition-colors ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
-              >
-                {isLoading ? "Sending OTP..." : "Send OTP"}
-              </button>
-            </form>
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Already have an account?{" "}
-                <a
-                  href="/login"
-                  className="font-medium text-green-600 hover:text-green-500"
+              {status.message && (
+                <div
+                  className={`mb-4 p-3 rounded-lg text-sm font-medium text-center ${
+                    status.type === "error"
+                      ? "bg-red-50 text-red-700"
+                      : "bg-green-50 text-green-700"
+                  }`}
                 >
-                  Log in here
-                </a>
-              </p>
-            </div>
-          </>
-        )}
+                  {status.message}
+                </div>
+              )}
 
-        {/* ── SCREEN 2: OTP Verification ── */}
-        {screen === "otp" && (
-          <>
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-extrabold text-gray-900">
-                Verify Your Email
-              </h2>
-              <p className="mt-2 text-sm text-gray-600">
-                We sent a 6-digit OTP to{" "}
-                <span className="font-semibold text-gray-800">
-                  {formData.email}
-                </span>
-              </p>
-            </div>
+              <form className="space-y-5" onSubmit={handleSubmit}>
+                <div>
+                  <label className="block text-sm font-semibold text-stone-700 mb-1">
+                    Full Name
+                  </label>
+                  <input
+                    name="name"
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="John Doe"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-stone-700 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    name="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="john@example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-stone-700 mb-1">
+                    Mobile Number
+                  </label>
+                  <input
+                    name="mob_no"
+                    type="tel"
+                    required
+                    value={formData.mob_no}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="9800000000"
+                    maxLength={10}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-stone-700 mb-1">
+                    Password
+                  </label>
+                  <input
+                    name="password"
+                    type="password"
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-stone-700 mb-1">
+                    Confirm Password
+                  </label>
+                  <input
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="••••••••"
+                  />
+                </div>
+                
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-stone-900 hover:bg-stone-800 transition-all ${
+                    isLoading ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {isLoading ? "Sending OTP..." : "Send OTP"}
+                </button>
+              </form>
 
-            {status.message && (
-              <div
-                className={`mb-4 p-3 rounded text-sm font-medium ${status.type === "error" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}
-              >
-                {status.message}
+              <div className="mt-6 text-center">
+                <p className="text-sm text-stone-600">
+                  Already have an account?{" "}
+                 <a
+  href="/login"
+  className="font-bold text-blue-600 hover:text-blue-700 hover:underline"
+>
+  Log in here
+</a>
+                </p>
               </div>
-            )}
+            </>
+          )}
 
-            <form className="space-y-6" onSubmit={handleVerifyOtp}>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Enter OTP
-                </label>
-                <input
-                  type="text"
-                  maxLength={6}
-                  required
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} // digits only
-                  className={`${inputClass} text-center text-2xl tracking-widest font-bold`}
-                  placeholder="------"
-                />
+          {/* ── SCREEN 2: OTP Verification ── */}
+          {screen === "otp" && (
+            <>
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-stone-900 transition-colors duration-300">
+                  Verify Your Email
+                </h2>
+                <p className="mt-2 text-sm text-stone-500 transition-colors duration-300">
+                  We sent a 6-digit OTP to{" "}
+                  <span className="font-semibold text-stone-900">
+                    {formData.email}
+                  </span>
+                </p>
               </div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition-colors ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
-              >
-                {isLoading ? "Verifying..." : "Verify OTP"}
-              </button>
-            </form>
 
-            <div className="mt-6 text-center space-y-2">
-              <p className="text-sm text-gray-500">Didn't receive the OTP?</p>
-              <button
-                onClick={handleResend}
-                disabled={resendCooldown > 0}
-                className={`text-sm font-medium transition-colors ${resendCooldown > 0 ? "text-gray-400 cursor-not-allowed" : "text-green-600 hover:text-green-500"}`}
-              >
-                {resendCooldown > 0
-                  ? `Resend OTP in ${resendCooldown}s`
-                  : "Resend OTP"}
-              </button>
-              <br />
-              <button
-                onClick={() => {
-                  setScreen("form");
-                  setStatus({ type: "", message: "" });
-                }}
-                className="text-xs text-gray-400 hover:text-gray-600 underline"
-              >
-                ← Back to registration
-              </button>
-            </div>
-          </>
-        )}
+              {status.message && (
+                <div
+                  className={`mb-4 p-3 rounded-lg text-sm font-medium text-center ${
+                    status.type === "error"
+                      ? "bg-red-50 text-red-700"
+                      : "bg-green-50 text-green-700"
+                  }`}
+                >
+                  {status.message}
+                </div>
+              )}
+
+              <form className="space-y-6" onSubmit={handleVerifyOtp}>
+                <div>
+                  <label className="block text-sm font-semibold text-stone-700 mb-1">
+                    Enter OTP
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    required
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                    className={`${inputClass} text-center text-2xl tracking-widest font-bold`}
+                    placeholder="------"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-stone-900 hover:bg-stone-800 transition-all ${
+                    isLoading ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {isLoading ? "Verifying..." : "Verify OTP"}
+                </button>
+              </form>
+
+              <div className="mt-6 text-center space-y-3">
+                <p className="text-sm text-stone-500">Didn't receive the OTP?</p>
+                <button
+                  onClick={handleResend}
+                  disabled={resendCooldown > 0}
+                  className={`text-sm font-bold transition-colors ${
+                    resendCooldown > 0
+                      ? "text-stone-400 cursor-not-allowed"
+                      : "text-stone-900 hover:underline"
+                  }`}
+                >
+                  {resendCooldown > 0
+                    ? `Resend OTP in ${resendCooldown}s`
+                    : "Resend OTP"}
+                </button>
+                <br />
+                <button
+                  onClick={() => {
+                    setScreen("form");
+                    setStatus({ type: "", message: "" });
+                  }}
+                  className="text-xs font-semibold text-stone-400 hover:text-stone-600 underline mt-2 inline-block"
+                >
+                  ← Back to registration
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

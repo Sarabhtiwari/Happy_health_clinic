@@ -11,7 +11,7 @@ const HomePage = () => {
     <div className="min-h-screen bg-gray-50 pt-24 text-gray-900 font-sans selection:bg-gray-900 selection:text-white transition-colors duration-300">
       <Navbar />
 
-      {/* --- EDITORIAL HERO SECTION --- */}
+      {/* --- EDITORIAL HERO SECTION (Unchanged) --- */}
       <section className="pt-16 pb-16 px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
         <h4 className="text-gray-500 tracking-[0.3em] uppercase text-xs font-semibold mb-6">
           Advanced Dermatology in Nepal
@@ -26,10 +26,10 @@ const HomePage = () => {
 
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <button
-            onClick={() => navigate("/contact")}
+            onClick={() => navigate("/services")}
             className="px-10 py-4 bg-gray-900 text-white font-medium rounded-full hover:bg-gray-800 transition-colors"
           >
-            Book Consultation
+            Book Appointment
           </button>
 
           {/* CONTACT ICONS */}
@@ -50,8 +50,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* --- HERO IMAGE BANNER --- */}
-      <section className="max-w-[96%] mx-auto relative mb-24">
+      {/* --- HERO IMAGE BANNER (Unchanged) --- */}
+      <section className="max-w-[96%] mx-auto relative mb-32 md:mb-40">
         <img
           src="https://res.cloudinary.com/dz3jyr4uy/image/upload/f_auto,q_auto/rejuvenating-facial-treatment_1_bsdqox"
           alt="Clinic Interior"
@@ -73,6 +73,127 @@ const HomePage = () => {
           ))}
         </div>
       </section>
+
+      {/* ========================================================================= */}
+      {/* ⬇⬇⬇ NEW SECTIONS ADDED BELOW TO EXPAND THE PAGE ⬇⬇⬇ */}
+      {/* ========================================================================= */}
+
+      {/* --- PHILOSOPHY SECTION --- */}
+      <section className="py-16 md:py-24 px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <div className="order-2 md:order-1">
+            <img 
+              src="https://res.cloudinary.com/dz3jyr4uy/image/upload/v1783870224/IMG20260615162525.jpg_jwic25.jpg" 
+              alt="Dermatology Aesthetics" 
+              className="w-full h-[400px] md:h-[550px] object-cover rounded-3xl shadow-sm"
+            />
+          </div>
+          <div className="order-1 md:order-2">
+            <h4 className="text-gray-500 tracking-[0.2em] uppercase text-xs font-semibold mb-4">
+              Our Philosophy
+            </h4>
+            <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-6 leading-tight">
+              Science meets <br /> Aesthetics.
+            </h2>
+            <p className="text-gray-600 font-light text-lg mb-6 leading-relaxed">
+              At Happy Health Clinic, we believe that true beauty begins with healthy skin and hair. We blend medical-grade science with a holistic approach to address your unique needs from the inside out.
+            </p>
+            <p className="text-gray-600 font-light text-lg mb-10 leading-relaxed">
+              Whether you are looking for advanced laser therapy, clinical hair restoration, or routine dermatological care, our expert team is dedicated to providing tailored solutions that yield real, lasting results.
+            </p>
+            <button 
+              onClick={() => navigate("/doctors")}
+              className="group flex items-center gap-2 text-gray-900 font-semibold hover:text-gray-600 transition-colors"
+            >
+              Meet Our Experts 
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* --- SIGNATURE SERVICES GRID --- */}
+      <section className="bg-white py-20 md:py-28 px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h4 className="text-gray-500 tracking-[0.2em] uppercase text-xs font-semibold mb-4">
+              What We Do
+            </h4>
+            <h2 className="text-4xl md:text-5xl font-serif text-gray-900">
+              Signature Treatments
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Service Card 1 */}
+            <div className="group cursor-pointer" onClick={() => navigate("/services")}>
+              <div className="overflow-hidden rounded-2xl mb-6 h-[300px]">
+                <img 
+                  src="https://res.cloudinary.com/dz3jyr4uy/image/upload/v1783869912/Screenshot_2026-07-12_205336_p8vihn.png" 
+                  alt="Clinical Dermatology" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <h3 className="text-2xl font-serif text-gray-900 mb-3">Clinical Dermatology</h3>
+              <p className="text-gray-600 font-light mb-4">
+                Comprehensive solutions for acne, pigmentation, eczema, and overall skin health using evidence-based medicine.
+              </p>
+              <span className="text-sm font-semibold border-b border-gray-900 pb-0.5">Discover More</span>
+            </div>
+
+            {/* Service Card 2 */}
+            <div className="group cursor-pointer" onClick={() => navigate("/services")}>
+              <div className="overflow-hidden rounded-2xl mb-6 h-[300px]">
+                <img 
+                  src="https://res.cloudinary.com/dz3jyr4uy/image/upload/f_auto,q_auto/woman-cosmetology-studio-laser-hair-removal_gzivo2" 
+                  alt="Advanced Laser Therapy" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <h3 className="text-2xl font-serif text-gray-900 mb-3">Advanced Lasers</h3>
+              <p className="text-gray-600 font-light mb-4">
+                Painless and effective laser hair reduction, scar revision, and skin resurfacing with state-of-the-art technology.
+              </p>
+              <span className="text-sm font-semibold border-b border-gray-900 pb-0.5">Discover More</span>
+            </div>
+
+            {/* Service Card 3 */}
+            <div className="group cursor-pointer" onClick={() => navigate("/services")}>
+              <div className="overflow-hidden rounded-2xl mb-6 h-[300px]">
+                <img 
+                  src="https://res.cloudinary.com/dz3jyr4uy/image/upload/f_auto,q_auto/high-angle-patient-getting-prp-injection-alopecia_p2skmq" 
+                  alt="Hair & Scalp Care" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <h3 className="text-2xl font-serif text-gray-900 mb-3">Hair Restoration</h3>
+              <p className="text-gray-600 font-light mb-4">
+                Targeted treatments for hair thinning and loss, including PRP therapy and clinical scalp rejuvenation.
+              </p>
+              <span className="text-sm font-semibold border-b border-gray-900 pb-0.5">Discover More</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- FINAL CALL TO ACTION --- */}
+      <section className="bg-gray-100 py-24 px-6 text-center">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-6 leading-tight">
+            Ready to start your skin journey?
+          </h2>
+          <p className="text-gray-600 font-light text-lg mb-10">
+            Schedule a consultation today and let our specialists design a treatment plan specifically for you.
+          </p>
+          <button
+            onClick={() => navigate("/signup")}
+            className="px-12 py-4 bg-gray-900 text-white font-medium rounded-full hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
+          >
+            Book Your Consultation
+          </button>
+        </div>
+      </section>
+
     </div>
   );
 };

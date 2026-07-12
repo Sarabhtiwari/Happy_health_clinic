@@ -124,7 +124,7 @@ const Services = () => {
       <Navbar />
       <div className="container mx-auto px-4">
         <h1 className="text-5xl font-bold mb-16">
-          Our <span className="text-blue-600">Clinical Services</span>
+           <span className="text-blue-600"> Our Clinical Services</span>
         </h1>
         <div className="flex flex-col gap-16">
           {servicesList.map((service) => (
@@ -145,7 +145,7 @@ const Services = () => {
                   <p className="text-blue-600 font-bold text-xl mt-1">
                     {service.priceRange}
                   </p>
-                  <p className="mt-2 text-gray-800">{service.desc}</p>
+                  <p className="mt-2 text-gray-500">{service.desc}</p>
                   <p className="text-gray-500 text-sm mt-2 leading-relaxed">
                     {service.details}
                   </p>
