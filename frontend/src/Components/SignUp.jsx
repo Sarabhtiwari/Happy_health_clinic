@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
-import Navbar from "./Navbar";
+import Navbar from "./NavBar";
 
 const SignUp = () => {
   const navigate = useNavigate();
