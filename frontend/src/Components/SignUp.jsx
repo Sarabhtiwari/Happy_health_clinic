@@ -114,26 +114,25 @@ const SignUp = () => {
     }, 1000);
   };
 
-  // Removed dark mode classes to match Login page styling
+  // FIX: Updated inputClass for proper dark mode support
   const inputClass =
-    "block w-full px-4 py-3 bg-transparent border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900 transition-all";
+    "block w-full px-4 py-3 bg-white dark:bg-stone-700 border border-stone-200 dark:border-stone-600 rounded-xl text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-stone-900 dark:focus:ring-blue-500 transition-all placeholder-stone-400";
 
   return (
     <>
       <Navbar />
 
-      {/* Removed dark mode classes from wrapper */}
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
-        <div className="max-w-md w-full bg-white p-8 rounded-2xl border border-stone-200 shadow-sm transition-colors duration-300">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-stone-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
+        <div className="max-w-md w-full bg-white dark:bg-stone-800 p-8 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-sm transition-colors duration-300">
           
           {/* ── SCREEN 1: Registration Form ── */}
           {screen === "form" && (
             <>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-blue-600 transition-colors duration-300">
-  Join Happy Health Clinic
-</h2>
-                <p className="mt-2 text-sm text-stone-500 transition-colors duration-300">
+                <h2 className="text-3xl font-bold text-blue-600 dark:text-blue-400 transition-colors duration-300">
+                  Join Happy Health Clinic
+                </h2>
+                <p className="mt-2 text-sm text-stone-500 dark:text-stone-400 transition-colors duration-300">
                   Create an account to book and manage your appointments.
                 </p>
               </div>
@@ -142,8 +141,8 @@ const SignUp = () => {
                 <div
                   className={`mb-4 p-3 rounded-lg text-sm font-medium text-center ${
                     status.type === "error"
-                      ? "bg-red-50 text-red-700"
-                      : "bg-green-50 text-green-700"
+                      ? "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                      : "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                   }`}
                 >
                   {status.message}
@@ -152,7 +151,7 @@ const SignUp = () => {
 
               <form className="space-y-5" onSubmit={handleSubmit}>
                 <div>
-                  <label className="block text-sm font-semibold text-stone-700 mb-1">
+                  <label className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
                     Full Name
                   </label>
                   <input
@@ -166,7 +165,7 @@ const SignUp = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-stone-700 mb-1">
+                  <label className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
                     Email Address
                   </label>
                   <input
@@ -180,7 +179,7 @@ const SignUp = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-stone-700 mb-1">
+                  <label className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
                     Mobile Number
                   </label>
                   <input
@@ -195,7 +194,7 @@ const SignUp = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-stone-700 mb-1">
+                  <label className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
                     Password
                   </label>
                   <input
@@ -209,7 +208,7 @@ const SignUp = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-stone-700 mb-1">
+                  <label className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
                     Confirm Password
                   </label>
                   <input
@@ -226,7 +225,7 @@ const SignUp = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-stone-900 hover:bg-stone-800 transition-all ${
+                  className={`w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-stone-900 hover:bg-stone-800 dark:bg-blue-600 dark:hover:bg-blue-700 transition-all ${
                     isLoading ? "opacity-70 cursor-not-allowed" : ""
                   }`}
                 >
@@ -235,14 +234,14 @@ const SignUp = () => {
               </form>
 
               <div className="mt-6 text-center">
-                <p className="text-sm text-stone-600">
+                <p className="text-sm text-stone-600 dark:text-stone-400">
                   Already have an account?{" "}
-                 <a
-  href="/login"
-  className="font-bold text-blue-600 hover:text-blue-700 hover:underline"
->
-  Log in here
-</a>
+                  <a
+                    href="/login"
+                    className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline"
+                  >
+                    Log in here
+                  </a>
                 </p>
               </div>
             </>
@@ -252,12 +251,12 @@ const SignUp = () => {
           {screen === "otp" && (
             <>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-stone-900 transition-colors duration-300">
+                <h2 className="text-3xl font-bold text-stone-900 dark:text-white transition-colors duration-300">
                   Verify Your Email
                 </h2>
-                <p className="mt-2 text-sm text-stone-500 transition-colors duration-300">
+                <p className="mt-2 text-sm text-stone-500 dark:text-stone-400 transition-colors duration-300">
                   We sent a 6-digit OTP to{" "}
-                  <span className="font-semibold text-stone-900">
+                  <span className="font-semibold text-stone-900 dark:text-white">
                     {formData.email}
                   </span>
                 </p>
@@ -267,8 +266,8 @@ const SignUp = () => {
                 <div
                   className={`mb-4 p-3 rounded-lg text-sm font-medium text-center ${
                     status.type === "error"
-                      ? "bg-red-50 text-red-700"
-                      : "bg-green-50 text-green-700"
+                      ? "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                      : "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                   }`}
                 >
                   {status.message}
@@ -277,7 +276,7 @@ const SignUp = () => {
 
               <form className="space-y-6" onSubmit={handleVerifyOtp}>
                 <div>
-                  <label className="block text-sm font-semibold text-stone-700 mb-1">
+                  <label className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-1">
                     Enter OTP
                   </label>
                   <input
@@ -293,7 +292,7 @@ const SignUp = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-stone-900 hover:bg-stone-800 transition-all ${
+                  className={`w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-stone-900 hover:bg-stone-800 dark:bg-blue-600 dark:hover:bg-blue-700 transition-all ${
                     isLoading ? "opacity-70 cursor-not-allowed" : ""
                   }`}
                 >
@@ -302,14 +301,14 @@ const SignUp = () => {
               </form>
 
               <div className="mt-6 text-center space-y-3">
-                <p className="text-sm text-stone-500">Didn't receive the OTP?</p>
+                <p className="text-sm text-stone-500 dark:text-stone-400">Didn't receive the OTP?</p>
                 <button
                   onClick={handleResend}
                   disabled={resendCooldown > 0}
                   className={`text-sm font-bold transition-colors ${
                     resendCooldown > 0
-                      ? "text-stone-400 cursor-not-allowed"
-                      : "text-stone-900 hover:underline"
+                      ? "text-stone-400 dark:text-stone-500 cursor-not-allowed"
+                      : "text-stone-900 dark:text-white hover:underline"
                   }`}
                 >
                   {resendCooldown > 0
@@ -322,7 +321,7 @@ const SignUp = () => {
                     setScreen("form");
                     setStatus({ type: "", message: "" });
                   }}
-                  className="text-xs font-semibold text-stone-400 hover:text-stone-600 underline mt-2 inline-block"
+                  className="text-xs font-semibold text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 underline mt-2 inline-block"
                 >
                   ← Back to registration
                 </button>
