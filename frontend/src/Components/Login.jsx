@@ -2,10 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import useAuthStore from "../zustand/UseAuthStore";
-
 import Navbar from "./Navbar";
-
-
 
 const Login = () => {
   const { setAuth } = useAuthStore();
